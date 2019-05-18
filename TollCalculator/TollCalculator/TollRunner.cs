@@ -86,50 +86,43 @@ namespace TollRunner
         }
 
         private static IResult<object> GetVehicle(object registration, TollEvent tollEvent)
-        {
-            if (registration is ConsumerVehicleRegistration.CarRegistration carReg)
-            {
-                return Result<object>.Success(new Car(tollEvent.Passengers, carReg));
-            }
-
-            if (registration is LiveryRegistration.TaxiRegistration taxiReg)
-            {
-                return Result<object>.Success(new Taxi(tollEvent.Passengers, taxiReg));
-            }
-
-            if (registration is LiveryRegistration.BusRegistration busReg)
-            {
-                return Result<object>.Success(new Bus(tollEvent.Passengers, busReg.Capacity, busReg));
-            }
-
-            if (registration is CommercialRegistration.DeliveryTruckRegistration truckReg)
-            {
-                return Result<object>.Success(new DeliveryTruck(tollEvent.Passengers, truckReg.GrossWeightClass, truckReg));
-            }
-
-            return Result<object>.Failure("Unexpected registration type");
-
-        }
+           => registration switch
+           {
+              ConsumerVehicleRegistration.CarRegistration carReg 
+                    => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
+              LiveryRegistration.TaxiRegistration carReg 
+                    => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
+              LiveryRegistration.BusRegistration carReg 
+                    => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
+              CommercialRegistration.DeliveryTruckRegistration carReg  
+                    => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
+              _ => Result<object>.Failure("Unexpected registration type")
+           };
 
         private static void RecordIssue(IResult<object> result, TollEvent tollEvent, string step)
         {
             throw new NotImplementedException();
         }
 
-        private static IResult<object> GetVehicleRegistration(string licencsePlate)
+        private static IResult<object> GetVehicleRegistration(string licensePlate)
+            => GetRegistrationFromSource(licensePlate,
+                    ConsumerVehicleRegistration.CarRegistration.GetByPlate,
+                    CommercialRegistration.DeliveryTruckRegistration.GetByPlate,
+                    LiveryRegistration.TaxiRegistration.GetByPlate,
+                    LiveryRegistration.BusRegistration.GetByPlate);
+
+
+        public static IResult<object> GetRegistrationFromSource(string licensePlate,
+                params Func<string, IResult<object>>[] sourceLookups)
         {
-            IResult<object> vehicleResult = ConsumerVehicleRegistration.CarRegistration.GetByPlate(licencsePlate);
-            if (vehicleResult.ResultStatus != ResultStatus.Success)
+            IResult<object> vehicleResult = null;
+            foreach (var sourceLookup in sourceLookups)
             {
-                vehicleResult = CommercialRegistration.DeliveryTruckRegistration.GetByPlate(licencsePlate);
-            }
-            if (vehicleResult.ResultStatus != ResultStatus.Success)
-            {
-                vehicleResult = LiveryRegistration.TaxiRegistration.GetByPlate(licencsePlate);
-            }
-            if (vehicleResult.ResultStatus != ResultStatus.Success)
-            {
-                vehicleResult = LiveryRegistration.BusRegistration.GetByPlate(licencsePlate);
+                vehicleResult = sourceLookup(licensePlate);
+                if (vehicleResult.ResultStatus == ResultStatus.Success)
+                {
+                    return vehicleResult;
+                }
             }
             return vehicleResult;
         }
