@@ -7,6 +7,17 @@ namespace toll_calculator
 {
     public partial class TollCalculator
     {
+        private const decimal carBase = 2.00m;
+        private const decimal taxiBase = 3.50m;
+        private const decimal busBase = 5.00m;
+        private const decimal truckBase = 10.00m;
+
+        private const decimal peakPremiumBase = 1.00m;
+        private const int morningRushStart = 6;
+        private const int morningRushEnd = 10;
+        private const int eveningRushStart = 12 + 4;  // helping folks not skilled with 24 hour clocks
+        private const int eveningRushEnd = 12 + 8;
+
         public decimal CalculateToll(object vehicle)
         {
             if (vehicle == null)
@@ -19,17 +30,17 @@ namespace toll_calculator
             {
                 if (car.Passengers == 0)
                 {
-                    return 2.00m + .50m;
+                    return carBase + .50m;
                 }
                 if (car.Passengers == 1)
                 {
-                    return 2.00m;
+                    return carBase;
                 }
                 if (car.Passengers == 2)
                 {
-                    return 2.00m - .50m;
+                    return carBase - .50m;
                 }
-                return 2.00m - 1.0m;
+                return carBase - 1.0m;
             }
 
             var taxi = vehicle as Taxi;
@@ -37,17 +48,17 @@ namespace toll_calculator
             {
                 if (taxi.Fares == 0)
                 {
-                    return 3.50m + 1.00m;
+                    return taxiBase + 1.00m;
                 }
                 if (taxi.Fares == 1)
                 {
-                    return 3.50m;
+                    return taxiBase;
                 }
                 if (taxi.Fares == 2)
                 {
-                    return 3.50m - .50m;
+                    return taxiBase - .50m;
                 }
-                return 3.50m - 1.0m;
+                return taxiBase - 1.0m;
             }
 
             var bus = vehicle as Bus;
@@ -55,13 +66,13 @@ namespace toll_calculator
             {
                 if ((double)bus.Riders / (double)bus.Capacity < .5)
                 {
-                    return 5.00m + 2.00m;
+                    return busBase + 2.00m;
                 }
                 if ((double)bus.Riders / (double)bus.Capacity > .9)
                 {
-                    return 5.00m - 1.00m;
+                    return busBase - 1.00m;
                 }
-                return 5.00m;
+                return busBase;
             }
 
             var truck = vehicle as DeliveryTruck;
@@ -69,13 +80,13 @@ namespace toll_calculator
             {
                 if ((double)truck.GrossWeightClass > 5000)
                 {
-                    return 10.00m + 5.00m;
+                    return truckBase + 5.00m;
                 }
                 if ((double)truck.GrossWeightClass < 3000)
                 {
-                    return 10.00m - 2.00m;
+                    return truckBase - 2.00m;
                 }
-                return 10.00m;
+                return truckBase;
             }
             throw new ArgumentException(message: "Not a known vehicle type", paramName: nameof(vehicle));
         }
@@ -94,40 +105,37 @@ namespace toll_calculator
                     case TimeBand.MorningRush:
                         return inbound
                                 ? 2.00m
-                                : 1.00m;
+                                : peakPremiumBase;
                     case TimeBand.EveningRush:
                         return !inbound
                                 ? 2.00m
-                                : 1.00m;
+                                : peakPremiumBase;
                         throw new ArgumentException(message: "Not a known time band", paramName: timeOfToll.ToString());
                 }
             }
-            return 1.00m;
+            return peakPremiumBase;
         }
 
         private static TimeBand GetTimeBand(DateTime timeOfToll)
         {
             var hour = timeOfToll.Hour;
-            if (hour < 6)
+            if (hour < morningRushStart)
             {
                 return TimeBand.Overnight;
             }
-            else if (hour < 10)
+            else if (hour < morningRushEnd)
             {
                 return TimeBand.MorningRush;
             }
-            else if (hour < 16)
+            else if (hour < eveningRushStart)
             {
                 return TimeBand.Daytime;
             }
-            else if (hour < 20)
+            else if (hour < eveningRushEnd)
             {
                 return TimeBand.EveningRush;
             }
-            else
-            {
-                return TimeBand.Overnight;
-            }
+            return TimeBand.Overnight;
         }
     }
 }
