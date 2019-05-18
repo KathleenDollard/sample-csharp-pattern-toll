@@ -20,6 +20,7 @@ namespace TollCalculatorTest
         public decimal Peak_premium_correct(DateTime tollEventTime, bool inBound)
         {
             var toll = _tollCalculator.PeakTimePremium(tollEventTime, inBound);
+            Console.WriteLine(tollEventTime);
             return toll;
         }
 

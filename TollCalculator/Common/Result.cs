@@ -36,12 +36,12 @@ namespace Common
             => new Result<T>(ResultStatus.Success, data);
 
         public static Result<T> PartialFailure(IEnumerable<IResult<T>> failedResults)
-            => new Result<T>(ResultStatus.PartialFailure, default(T), failedResults);
+            => new Result<T>(ResultStatus.PartialFailure, default, failedResults);
 
         public static Result<T> Failure(string message)
-             => new Result<T>(ResultStatus.Failure, default(T), message: message);
+             => new Result<T>(ResultStatus.Failure, default, message: message);
         public static Result<T> Error(string message)
-              => new Result<T>(ResultStatus.Error, default(T), message: message);
+              => new Result<T>(ResultStatus.Error, default, message: message);
 
         private Result(ResultStatus resultStatus, T data,
                     IEnumerable<IResult<T>> failedResults = null,

@@ -63,26 +63,22 @@ namespace TollRunner
 
         private static IResult<object> GetVehicle(TollEvent tollEvent, object registration)
         {
-            var carReg = registration as ConsumerVehicleRegistration.CarRegistration;
-            if (carReg != null)
+            if (registration is ConsumerVehicleRegistration.CarRegistration carReg)
             {
                 return Result<object>.Success(new Car(tollEvent.Passengers, carReg));
             }
 
-            var taxiReg = registration as LiveryRegistration.TaxiRegistration;
-            if (taxiReg != null)
+            if (registration is LiveryRegistration.TaxiRegistration taxiReg)
             {
                 return Result<object>.Success(new Taxi(tollEvent.Passengers, taxiReg));
             }
 
-            var busReg = registration as LiveryRegistration.BusRegistration;
-            if (busReg != null)
+            if (registration is LiveryRegistration.BusRegistration busReg)
             {
                 return Result<object>.Success(new Bus(tollEvent.Passengers, busReg.Capacity, busReg));
             }
 
-            var truckReg = registration as CommercialRegistration.DeliveryTruckRegistration;
-            if (truckReg != null)
+            if (registration is CommercialRegistration.DeliveryTruckRegistration truckReg)
             {
                 return Result<object>.Success(new DeliveryTruck(tollEvent.Passengers, truckReg.GrossWeightClass, truckReg));
             }

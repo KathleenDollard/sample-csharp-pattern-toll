@@ -23,8 +23,7 @@ namespace TollEngine
                 throw new ArgumentNullException(nameof(vehicle));
             }
 
-            var car = vehicle as Car;
-            if (car != null)
+            if (vehicle is Car car)
             {
                 if (car.Passengers == 0)
                 {
@@ -41,8 +40,7 @@ namespace TollEngine
                 return carBase - 1.0m;
             }
 
-            var taxi = vehicle as Taxi;
-            if (taxi != null)
+            if (vehicle is Taxi taxi)
             {
                 if (taxi.Fares == 0)
                 {
@@ -59,8 +57,7 @@ namespace TollEngine
                 return taxiBase - 1.0m;
             }
 
-            var bus = vehicle as Bus;
-            if (bus != null)
+            if (vehicle is Bus bus)
             {
                 if ((double)bus.Riders / (double)bus.Capacity < .5)
                 {
@@ -73,8 +70,7 @@ namespace TollEngine
                 return busBase;
             }
 
-            var truck = vehicle as DeliveryTruck;
-            if (truck != null)
+            if (vehicle is DeliveryTruck truck)
             {
                 if ((double)truck.GrossWeightClass > 5000)
                 {
@@ -112,31 +108,23 @@ namespace TollEngine
                         throw new ArgumentException(message: "Not a known time band", paramName: timeOfToll.ToString());
                 }
             }
-            return timeBand == TimeBand.Overnight 
+            return timeBand == TimeBand.Overnight
                                 ? 0.75m
                                 : peakPremiumBase;
         }
 
         private static TimeBand GetTimeBand(DateTime timeOfToll)
-        {
-            var hour = timeOfToll.Hour;
-            if (hour < morningRushStart)
-            {
-                return TimeBand.Overnight;
-            }
-            else if (hour < morningRushEnd)
-            {
-                return TimeBand.MorningRush;
-            }
-            else if (hour < eveningRushStart)
-            {
-                return TimeBand.Daytime;
-            }
-            else if (hour < eveningRushEnd)
-            {
-                return TimeBand.EveningRush;
-            }
-            return TimeBand.Overnight;
-        }
+            => GetTimeBandFromHour(timeOfToll.Hour);
+
+        private static TimeBand GetTimeBandFromHour(int hour) 
+            => hour < morningRushStart
+                    ? TimeBand.Overnight
+                    : hour < morningRushEnd
+                        ? TimeBand.MorningRush
+                        : hour < eveningRushStart
+                            ? TimeBand.Daytime
+                            : hour < eveningRushEnd
+                                ? TimeBand.EveningRush
+                                : TimeBand.Overnight;
     }
 }

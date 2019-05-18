@@ -12,10 +12,7 @@ namespace ConsumerVehicleRegistration
             new CarRegistration("32A80A61")
         };
 
-        public CarRegistration(string licensePlate)
-        {
-            LicensePlate = licensePlate;
-        }
+        public CarRegistration(string licensePlate) => LicensePlate = licensePlate;
 
         public string LicensePlate { get; }
 
@@ -77,10 +74,7 @@ namespace LiveryRegistration
                 new TaxiRegistration("071C7D2E")
         };
 
-        public TaxiRegistration(string licensePlate)
-        {
-            LicensePlate = licensePlate;
-        }
+        public TaxiRegistration(string licensePlate) => LicensePlate = licensePlate;
 
         public string LicensePlate { get; set; }
 
