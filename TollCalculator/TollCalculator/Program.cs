@@ -41,9 +41,9 @@ namespace toll_calculator
             Console.WriteLine($"The toll for a regular bus is {tollCalc.CalculateToll(normalBus)}");
             Console.WriteLine($"The toll for a bus is {tollCalc.CalculateToll(fullBus)}");
 
-            Console.WriteLine($"The toll for a truck is {tollCalc.CalculateToll(heavyTruck)}");
+            Console.WriteLine($"The toll for a heavy truck is {tollCalc.CalculateToll(heavyTruck)}");
             Console.WriteLine($"The toll for a truck is {tollCalc.CalculateToll(truck)}");
-            Console.WriteLine($"The toll for a truck is {tollCalc.CalculateToll(lightTruck)}");
+            Console.WriteLine($"The toll for a light truck is {tollCalc.CalculateToll(lightTruck)}");
 
             try
             {
@@ -76,13 +76,8 @@ namespace toll_calculator
                 new DateTime(2019, 3, 16, 01, 30, 0), // weekend overnight
             };
 
-            foreach (var time in testTimes)
-            {
-                Console.WriteLine($"Inbound premium at {time} is {tollCalc.PeakTimePremiumFull(time, true)}");
-                Console.WriteLine($"Outbound premium at {time} is {tollCalc.PeakTimePremiumFull(time, false)}");
-            }
             Console.WriteLine("====================================================");
-            foreach (var time in testTimes)
+            foreach (DateTime time in testTimes)
             {
                 Console.WriteLine($"Inbound premium at {time} is {tollCalc.PeakTimePremium(time, true)}");
                 Console.WriteLine($"Outbound premium at {time} is {tollCalc.PeakTimePremium(time, false)}");
