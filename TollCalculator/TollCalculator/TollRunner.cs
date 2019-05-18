@@ -30,22 +30,31 @@ namespace TollRunner
                         IResult<object> registrationResult = GetVehicleRegistration(tollEvent.LicencsePlate);
                         if (registrationResult.ResultStatus != ResultStatus.Success)
                         {
-                            if (registrationResult.ResultStatus != ResultStatus.Success)
-                            {
-                                RecordIssue(tollEvent, registrationResult, "Registration");
-                            }
+                            RecordIssue(registrationResult, tollEvent, "Retrieve registration");
+                            partialFailures.Add(registrationResult);
                             continue;
                         }
-                        IResult<object> vehicleResult = GetVehicle(tollEvent, registrationResult.Data);
+                        IResult<object> vehicleResult = GetVehicle(registrationResult.Data, tollEvent);
                         if (vehicleResult.ResultStatus != ResultStatus.Success)
                         {
+                            RecordIssue(registrationResult, tollEvent, "Get vehicle");
+                            partialFailures.Add(registrationResult);
                             continue;
                         }
-                        var basicToll = tollCalculator.CalculateToll(vehicleResult.Data);
-                        var peakPremium = tollCalculator.PeakTimePremium(tollEvent.TollTime, tollEvent.InBound);
-                        var toll = basicToll * peakPremium;
-
-                        billingSystem.SendBill(toll, vehicleResult.Data);
+                        IResult<decimal> tollResult = CalculateToll(vehicleResult.Data, tollCalculator, tollEvent);
+                        if (vehicleResult.ResultStatus != ResultStatus.Success)
+                        {
+                            RecordIssue(registrationResult, tollEvent, "Calculate toll");
+                            partialFailures.Add(vehicleResult);
+                            continue;
+                        }
+                        IResult<object> billResult = billingSystem.SendBill(tollResult.Data, vehicleResult.Data);
+                        if (billResult.ResultStatus != ResultStatus.Success)
+                        {
+                            RecordIssue(billResult, tollEvent, "Calculate toll");
+                            partialFailures.Add(registrationResult);
+                            continue;
+                        }
                     }
                 }
             }
@@ -60,29 +69,40 @@ namespace TollRunner
             return Result<object>.Success(null);
         }
 
-
-        private static IResult<object> GetVehicle(TollEvent tollEvent, object registration)
+        private static Result<decimal> CalculateToll(object vehicle,
+                TollCalculator tollCalculator, TollEvent tollEvent)
         {
-            var carReg = registration as ConsumerVehicleRegistration.CarRegistration;
-            if (carReg != null)
+            try
+            {
+                var basicToll = tollCalculator.CalculateToll(vehicle);
+                var peakPremium = tollCalculator.PeakTimePremium(tollEvent.TollTime, tollEvent.InBound);
+                var toll = basicToll * peakPremium;
+                return Result<decimal>.Success(toll);
+            }
+            catch (Exception e)
+            {
+                return Result<decimal>.Error(e.Message);
+            }
+        }
+
+        private static IResult<object> GetVehicle(object registration, TollEvent tollEvent)
+        {
+            if (registration is ConsumerVehicleRegistration.CarRegistration carReg)
             {
                 return Result<object>.Success(new Car(tollEvent.Passengers, carReg));
             }
 
-            var taxiReg = registration as LiveryRegistration.TaxiRegistration;
-            if (taxiReg != null)
+            if (registration is LiveryRegistration.TaxiRegistration taxiReg)
             {
                 return Result<object>.Success(new Taxi(tollEvent.Passengers, taxiReg));
             }
 
-            var busReg = registration as LiveryRegistration.BusRegistration;
-            if (busReg != null)
+            if (registration is LiveryRegistration.BusRegistration busReg)
             {
                 return Result<object>.Success(new Bus(tollEvent.Passengers, busReg.Capacity, busReg));
             }
 
-            var truckReg = registration as CommercialRegistration.DeliveryTruckRegistration;
-            if (truckReg != null)
+            if (registration is CommercialRegistration.DeliveryTruckRegistration truckReg)
             {
                 return Result<object>.Success(new DeliveryTruck(tollEvent.Passengers, truckReg.GrossWeightClass, truckReg));
             }
@@ -91,7 +111,7 @@ namespace TollRunner
 
         }
 
-        private static void RecordIssue(TollEvent tollEvent, IResult<object> result, string step)
+        private static void RecordIssue(IResult<object> result, TollEvent tollEvent, string step)
         {
             throw new NotImplementedException();
         }
