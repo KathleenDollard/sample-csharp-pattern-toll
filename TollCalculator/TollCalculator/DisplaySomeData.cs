@@ -8,7 +8,7 @@ namespace TollRunner
 {
     public class DisplaySomeData
     { 
-        private static void DisplayTolls()
+        internal static void DisplayTolls()
         {
             var tollCalc = new TollCalculator();
 
