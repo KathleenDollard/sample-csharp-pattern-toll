@@ -1,6 +1,7 @@
 ﻿using System;
+using Common;
 
-namespace TollRunner
+namespace TollEngine
 {
     public partial class TollCalculator
     {
@@ -90,10 +91,11 @@ namespace TollRunner
 
         public decimal PeakTimePremium(DateTime timeOfToll, bool inbound)
         {
+            TimeBand timeBand = GetTimeBand(timeOfToll);
             if (Extensions.IsWeekDay(timeOfToll))
             {
 
-                switch (GetTimeBand(timeOfToll))
+                switch (timeBand)
                 {
                     case TimeBand.Overnight:
                         return 0.75m;
@@ -110,7 +112,9 @@ namespace TollRunner
                         throw new ArgumentException(message: "Not a known time band", paramName: timeOfToll.ToString());
                 }
             }
-            return peakPremiumBase;
+            return timeBand == TimeBand.Overnight 
+                                ? 0.75m
+                                : peakPremiumBase;
         }
 
         private static TimeBand GetTimeBand(DateTime timeOfToll)

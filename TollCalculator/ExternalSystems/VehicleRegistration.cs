@@ -13,18 +13,22 @@ namespace ConsumerVehicleRegistration
         };
 
         public CarRegistration(string licensePlate)
-            => LicensePlate = licensePlate;
+        {
+            LicensePlate = licensePlate;
+        }
 
         public string LicensePlate { get; }
 
         public static Result<CarRegistration> GetByPlate(string licensePlate)
         {
             CarRegistration car = registeredCars.Where(c => c.LicensePlate == licensePlate).SingleOrDefault();
-            ResultStatus status = car == null
-                                ? ResultStatus.Failure
-                                : ResultStatus.Success;
-            return new Result<CarRegistration>(status, car);
+            if (car == null)
+            {
+                return Result<CarRegistration>.Failure("Could not find license plate");
+            }
+            return Result<CarRegistration>.Success(car);
         }
+
     }
 }
 
@@ -33,7 +37,7 @@ namespace CommercialRegistration
     public class DeliveryTruckRegistration
     {
 
-        private static readonly DeliveryTruckRegistration[] registeredCars = new DeliveryTruckRegistration[]
+        private static readonly DeliveryTruckRegistration[] registeredTrucks = new DeliveryTruckRegistration[]
         {
 
                 new DeliveryTruckRegistration("3F2229", 7500),
@@ -49,6 +53,16 @@ namespace CommercialRegistration
 
         public int GrossWeightClass { get; }
         public string LicensePlate { get; }
+
+        public static Result<DeliveryTruckRegistration> GetByPlate(string licensePlate)
+        {
+            DeliveryTruckRegistration truck = registeredTrucks.Where(c => c.LicensePlate == licensePlate).SingleOrDefault();
+            if (truck == null)
+            {
+                return Result<DeliveryTruckRegistration>.Failure("Could not find license plate");
+            }
+            return Result<DeliveryTruckRegistration>.Success(truck);
+        }
     }
 }
 
@@ -56,7 +70,7 @@ namespace LiveryRegistration
 {
     public class TaxiRegistration
     {
-        private static readonly TaxiRegistration[] registeredCars = new TaxiRegistration[]
+        private static readonly TaxiRegistration[] registeredTaxis = new TaxiRegistration[]
         {
                 new TaxiRegistration("3814DB"),
                 new TaxiRegistration("3DB9071"),
@@ -64,14 +78,26 @@ namespace LiveryRegistration
         };
 
         public TaxiRegistration(string licensePlate)
-            => LicensePlate = licensePlate;
+        {
+            LicensePlate = licensePlate;
+        }
 
         public string LicensePlate { get; set; }
+
+        public static Result<TaxiRegistration> GetByPlate(string licensePlate)
+        {
+            TaxiRegistration taxi = registeredTaxis.Where(c => c.LicensePlate == licensePlate).SingleOrDefault();
+            if (taxi == null)
+            {
+                return Result<TaxiRegistration>.Failure("Could not find license plate");
+            }
+            return Result<TaxiRegistration>.Success(taxi);
+        }
     }
 
     public class BusRegistration
     {
-        private static readonly BusRegistration[] registeredCars = new BusRegistration[]
+        private static readonly BusRegistration[] registeredBuses = new BusRegistration[]
         {
 
                 new BusRegistration("C36745A", 90),
@@ -87,5 +113,15 @@ namespace LiveryRegistration
 
         public int Capacity { get; }
         public string LicensePlate { get; }
+
+        public static Result<BusRegistration> GetByPlate(string licensePlate)
+        {
+            BusRegistration bus = registeredBuses.Where(c => c.LicensePlate == licensePlate).SingleOrDefault();
+            if (bus == null)
+            {
+                return Result<BusRegistration>.Failure("Could not find license plate");
+            }
+            return Result<BusRegistration>.Success(bus);
+        }
     }
 }

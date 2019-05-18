@@ -2,7 +2,7 @@
 
 namespace Common
 {
-    class Extensions
+    public class Extensions
     {
         // Not an extension to avoid confusion with example
         public static bool IsWeekDay(DateTime timeOfToll)
@@ -11,9 +11,9 @@ namespace Common
             {
                 case DayOfWeek.Saturday:
                 case DayOfWeek.Sunday:
-                    return true;
-                default:
                     return false;
+                default:
+                    return true;
             }
         }
 

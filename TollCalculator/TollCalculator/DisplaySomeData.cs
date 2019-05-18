@@ -2,6 +2,7 @@
 using ConsumerVehicleRegistration;
 using LiveryRegistration;
 using System;
+using TollEngine;
 
 namespace TollRunner
 {
@@ -9,7 +10,7 @@ namespace TollRunner
     { 
         private static void DisplayTolls()
         {
-            var tollCalc = new TollRunner();
+            var tollCalc = new TollCalculator();
 
             var carRegistration = new CarRegistration("Test");
             var soloDriver = new Car(0,carRegistration);
@@ -24,16 +25,16 @@ namespace TollRunner
             var fullVanPool = new Taxi(5, taxiRegistration);
 
             var busRegistration = new BusRegistration("Test",90);
-            var lowOccupantBus = new Bus(15, busRegistration);
-            var normalBus = new Bus(75, busRegistration);
-            var fullBus = new Bus(85, busRegistration);
+            var lowOccupantBus = new Bus(15, busRegistration.Capacity ,busRegistration);
+            var normalBus = new Bus(75, busRegistration.Capacity, busRegistration);
+            var fullBus = new Bus(85, busRegistration.Capacity, busRegistration);
 
             var lightTruckReg = new DeliveryTruckRegistration("Test", 7500);
             var truckReg = new DeliveryTruckRegistration("Test", 4000);
             var heavyTruckReg = new DeliveryTruckRegistration("Test", 2500);
-            var heavyTruck = new DeliveryTruck (0, heavyTruckReg);
-            var truck = new DeliveryTruck(0, truckReg);
-            var lightTruck = new DeliveryTruck(0, lightTruckReg);
+            var heavyTruck = new DeliveryTruck (0, heavyTruckReg.GrossWeightClass ,heavyTruckReg);
+            var truck = new DeliveryTruck(0, truckReg.GrossWeightClass, truckReg);
+            var lightTruck = new DeliveryTruck(0, lightTruckReg.GrossWeightClass, lightTruckReg);
 
             Console.WriteLine($"The toll for a solo driver is {tollCalc.CalculateToll(soloDriver)}");
             Console.WriteLine($"The toll for a two ride share is {tollCalc.CalculateToll(twoRideShare)}");

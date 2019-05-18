@@ -2,16 +2,16 @@ using CommercialRegistration;
 using ConsumerVehicleRegistration;
 using LiveryRegistration;
 using NUnit.Framework;
-using TollRunner;
+using TollEngine;
 
 namespace Tests
 {
     public class TollCalculatorTests
     {
-        private TollRunner.TollCalculator _tollCalculator;
+        private TollCalculator _tollCalculator;
         [SetUp]
         public void Setup() 
-            => _tollCalculator = new TollRunner.TollCalculator();
+            => _tollCalculator = new TollCalculator();
 
         [Test]
         public void Car_with_no_passengers_correct()
@@ -107,7 +107,7 @@ namespace Tests
         public void Bus_with_low_occupancy_correct()
         {
             var busRegistration = new BusRegistration("Test", 90);
-            var bus = new Bus(15, busRegistration);
+            var bus = new Bus(15, busRegistration.Capacity,busRegistration);
             var toll = _tollCalculator.CalculateToll(bus);
             Assert.AreEqual(7.00m, toll);
         }
@@ -116,7 +116,7 @@ namespace Tests
         public void Bus_with_normal_occupancy_correct()
         {
             var busRegistration = new BusRegistration("Test", 90);
-            var bus = new Bus(75, busRegistration);
+            var bus = new Bus(75, busRegistration.Capacity, busRegistration);
             var toll = _tollCalculator.CalculateToll(bus);
             Assert.AreEqual(5.00m, toll);
         }
@@ -125,7 +125,7 @@ namespace Tests
         public void Bus_with_high_occupancy_correct()
         {
             var busRegistration = new BusRegistration("Test", 90);
-            var bus = new Bus(85, busRegistration);
+            var bus = new Bus(85, busRegistration.Capacity, busRegistration);
             var toll = _tollCalculator.CalculateToll(bus);
             Assert.AreEqual(4.00m, toll);
         }
@@ -133,8 +133,8 @@ namespace Tests
         [Test]
         public void Truck_that_is_light_correct()
         {
-            var lightTruckReg = new DeliveryTruckRegistration("Test", 7500);
-            var truck = new DeliveryTruck(0, lightTruckReg);
+            var lightTruckReg = new DeliveryTruckRegistration("Test", 2500);
+            var truck = new DeliveryTruck(0, lightTruckReg.GrossWeightClass , lightTruckReg);
             var toll = _tollCalculator.CalculateToll(truck);
             Assert.AreEqual(8.00m, toll);
         }
@@ -144,7 +144,7 @@ namespace Tests
         public void Truck_that_is_normal_correct()
         {
             var truckReg = new DeliveryTruckRegistration("Test", 4000);
-            var truck = new DeliveryTruck(0, truckReg);
+            var truck = new DeliveryTruck(0, truckReg.GrossWeightClass, truckReg);
             var toll = _tollCalculator.CalculateToll(truck);
             Assert.AreEqual(10.00m, toll);
         }
@@ -153,8 +153,8 @@ namespace Tests
         [Test]
         public void Truck_that_is_heavy_correct()
         {
-            var heavyTruckReg = new DeliveryTruckRegistration("Test", 2500);
-            var truck = new DeliveryTruck(0, heavyTruckReg); ;
+            var heavyTruckReg = new DeliveryTruckRegistration("Test", 7500);
+            var truck = new DeliveryTruck(0, heavyTruckReg.GrossWeightClass, heavyTruckReg); ;
             var toll = _tollCalculator.CalculateToll(truck);
             Assert.AreEqual(15.00m, toll);
         }

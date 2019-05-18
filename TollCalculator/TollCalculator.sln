@@ -5,15 +5,13 @@ VisualStudioVersion = 16.0.28902.138
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TollCalculator", "TollCalculator\TollCalculator.csproj", "{665420D9-90CE-4522-9E9D-ED0434FF2646}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TollCalculatorTest", "TollCalculatorTest\TollCalculatorTest.csproj", "{45C417C1-B5C6-4B10-9DBC-2A26AF3C0D7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TollCalculatorTest", "TollCalculatorTest\TollCalculatorTest.csproj", "{45C417C1-B5C6-4B10-9DBC-2A26AF3C0D7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExternalSystems", "ExternalSystems\ExternalSystems.csproj", "{08DF0C22-3406-4071-9F13-4B60A37F51C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalSystems", "ExternalSystems\ExternalSystems.csproj", "{08DF0C22-3406-4071-9F13-4B60A37F51C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{F3E99DE1-2D38-4D93-9718-50EF9B76017E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{F3E99DE1-2D38-4D93-9718-50EF9B76017E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TollSystem", "TollSystem\TollSystem.csproj", "{E708CEFC-A645-45D2-9245-23CE2EDC08D6}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TollEngine", "TollEngine\TollEngine.csproj", "{05B1A175-6D68-4CCA-B331-79D1088A5AC0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TollEngine", "TollEngine\TollEngine.csproj", "{05B1A175-6D68-4CCA-B331-79D1088A5AC0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,10 +35,6 @@ Global
 		{F3E99DE1-2D38-4D93-9718-50EF9B76017E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3E99DE1-2D38-4D93-9718-50EF9B76017E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3E99DE1-2D38-4D93-9718-50EF9B76017E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E708CEFC-A645-45D2-9245-23CE2EDC08D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E708CEFC-A645-45D2-9245-23CE2EDC08D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E708CEFC-A645-45D2-9245-23CE2EDC08D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E708CEFC-A645-45D2-9245-23CE2EDC08D6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{05B1A175-6D68-4CCA-B331-79D1088A5AC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{05B1A175-6D68-4CCA-B331-79D1088A5AC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05B1A175-6D68-4CCA-B331-79D1088A5AC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
