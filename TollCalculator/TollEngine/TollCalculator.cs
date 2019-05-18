@@ -1,9 +1,6 @@
 ﻿using System;
-using CommercialRegistration;
-using ConsumerVehicleRegistration;
-using LiveryRegistration;
 
-namespace toll_calculator
+namespace TollRunner
 {
     public partial class TollCalculator
     {

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace toll_calculator
+namespace Common
 {
     class Extensions
     {

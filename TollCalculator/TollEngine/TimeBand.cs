@@ -1,4 +1,4 @@
-﻿namespace toll_calculator
+﻿namespace TollRunner
 {
     public partial class TollCalculator
     {

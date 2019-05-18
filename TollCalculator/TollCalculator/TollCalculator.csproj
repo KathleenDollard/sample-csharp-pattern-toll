@@ -7,5 +7,9 @@
     <LangVersion>6.0</LangVersion>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ExternalSystems\ExternalSystems.csproj" />
+  </ItemGroup>
+
 </Project>
 
