@@ -27,34 +27,14 @@ namespace TollRunner
                 {
                     foreach (TollEvent tollEvent in tollSource.GetTollEvents())
                     {
-                        IResult<object> registrationResult = GetVehicleRegistration(tollEvent.LicencsePlate);
-                        if (registrationResult.ResultStatus != ResultStatus.Success)
-                        {
-                            RecordIssue(registrationResult, tollEvent, "Retrieve registration");
-                            partialFailures.Add(registrationResult);
-                            continue;
-                        }
-                        IResult<object> vehicleResult = GetVehicle(registrationResult.Data, tollEvent);
-                        if (vehicleResult.ResultStatus != ResultStatus.Success)
-                        {
-                            RecordIssue(registrationResult, tollEvent, "Get vehicle");
-                            partialFailures.Add(registrationResult);
-                            continue;
-                        }
-                        IResult<decimal> tollResult = CalculateToll(vehicleResult.Data, tollCalculator, tollEvent);
-                        if (vehicleResult.ResultStatus != ResultStatus.Success)
-                        {
-                            RecordIssue(registrationResult, tollEvent, "Calculate toll");
-                            partialFailures.Add(vehicleResult);
-                            continue;
-                        }
-                        IResult<object> billResult = billingSystem.SendBill(tollResult.Data, vehicleResult.Data);
-                        if (billResult.ResultStatus != ResultStatus.Success)
-                        {
-                            RecordIssue(billResult, tollEvent, "Calculate toll");
-                            partialFailures.Add(registrationResult);
-                            continue;
-                        }
+                        IResult<object> vehicleResult = null;
+                        var result = DoOperation(partialFailures, tollEvent,
+                                    (lastResult) => GetVehicleRegistration(tollEvent.LicencsePlate),
+                                    (lastResult) => GetVehicle(lastResult.Data, tollEvent),
+                                    (lastResult) => (vehicleResult = lastResult),
+                                    (lastResult) => (IResult<object>)CalculateToll(lastResult.Data, tollCalculator, tollEvent),
+                                    (lastResult) => billingSystem.SendBill((decimal)lastResult.Data, vehicleResult.Data));
+
                     }
                 }
             }
@@ -69,8 +49,26 @@ namespace TollRunner
             return Result<object>.Success(null);
         }
 
+        private static IResult<object> DoOperation(List<IResult<object>> partialFailures,
+                object operationData, params Func<IResult<object>, IResult<object>>[] operations)
+        {
+            IResult<object> result = null;
+            foreach (var operation in operations)
+            {
+                IResult<object> lastResult = result;
+                result = operation(lastResult);
+                if (result.ResultStatus != ResultStatus.Success)
+                {
+                    RecordIssue(result, operationData, "");
+                    partialFailures.Add(result);
+                    return result;
+                }
+            }
+            return result;
+        }
+
         private static Result<decimal> CalculateToll(object vehicle,
-                TollCalculator tollCalculator, TollEvent tollEvent)
+                    TollCalculator tollCalculator, TollEvent tollEvent)
         {
             try
             {
@@ -88,18 +86,18 @@ namespace TollRunner
         private static IResult<object> GetVehicle(object registration, TollEvent tollEvent)
            => registration switch
            {
-              ConsumerVehicleRegistration.CarRegistration carReg 
-                    => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
-              LiveryRegistration.TaxiRegistration carReg 
-                    => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
-              LiveryRegistration.BusRegistration carReg 
-                    => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
-              CommercialRegistration.DeliveryTruckRegistration carReg  
-                    => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
-              _ => Result<object>.Failure("Unexpected registration type")
+               ConsumerVehicleRegistration.CarRegistration carReg
+                 => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
+               LiveryRegistration.TaxiRegistration carReg
+                 => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
+               LiveryRegistration.BusRegistration carReg
+                 => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
+               CommercialRegistration.DeliveryTruckRegistration carReg
+                 => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
+               _ => Result<object>.Failure("Unexpected registration type")
            };
 
-        private static void RecordIssue(IResult<object> result, TollEvent tollEvent, string step)
+        private static void RecordIssue(IResult<object> result, object operatingData, string step)
         {
             throw new NotImplementedException();
         }
