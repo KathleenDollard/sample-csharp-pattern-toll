@@ -10,51 +10,55 @@ namespace ExternalSystem
 
     public class BillingSystem
     {
-        public IResult<object> SendBill(decimal toll, object vehicle)
+        public Result<Guid> SendBill(decimal toll, object vehicle)
         {
             if (vehicle == null)
             {
-                return Result<object>.Failure("oops");
+                return Result<Guid>.Failure("oops");
             }
 
             if (toll < 0)
             {
-                return Result<object>.Failure("very oops");
+                return Result<Guid>.Failure("very oops");
             }
 
-            if (vehicle is CarRegistration car)
+            var car = vehicle as CarRegistration;
+            if (car != null)
             {
                 return SendCustomerBill(car);
             }
 
-            if (vehicle is TaxiRegistration taxi)
+            var taxi = vehicle as TaxiRegistration;
+            if (taxi != null)
             {
                 return SendCustomerBill(taxi);
             }
 
-            if (vehicle is BusRegistration bus)
+            var bus = vehicle as BusRegistration;
+            if (bus != null)
             {
                 return SendCustomerBill(bus);
             }
 
-            if (vehicle is DeliveryTruckRegistration truck)
+            var truck = vehicle as DeliveryTruckRegistration;
+            if (truck != null)
             {
                 return SendCustomerBill(truck);
             }
-            return Result<object>.Failure("oops");
+            return Result<Guid>.Failure("oops");
         }
 
         // The following methods are stubbed until the links to these systems is created
-        private Result<object> SendCustomerBill(DeliveryTruckRegistration truck)
-            => Result<object>.Success(Guid.NewGuid());
+        private Result<Guid> SendCustomerBill(DeliveryTruckRegistration truck)
+            => Result<Guid>.Success(Guid.NewGuid());
 
-        private Result<object> SendCustomerBill(BusRegistration bus)
-            => Result<object>.Success(Guid.NewGuid());
+        private Result<Guid> SendCustomerBill(BusRegistration bus)
+            => Result<Guid>.Success(Guid.NewGuid());
 
-        private Result<object> SendCustomerBill(TaxiRegistration taxi)
-            => Result<object>.Success(Guid.NewGuid());
+        private Result<Guid> SendCustomerBill(TaxiRegistration taxi)
+            => Result<Guid>.Success(Guid.NewGuid());
 
-        private Result<object> SendCustomerBill(CarRegistration car)
-            => Result<object>.Success(Guid.NewGuid());
+        private Result<Guid> SendCustomerBill(CarRegistration car) 
+            => Result<Guid>.Success(Guid.NewGuid());
     }
 }
