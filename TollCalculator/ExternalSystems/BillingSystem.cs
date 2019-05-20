@@ -12,36 +12,25 @@ namespace ExternalSystem
     {
         public IResult<object> SendBill(decimal toll, object vehicle)
         {
-            if (vehicle == null)
-            {
-                return Result<object>.Failure("oops");
-            }
-
             if (toll < 0)
             {
-                return Result<object>.Failure("very oops");
+                return Result<object>.Failure("Tolls can't be less than zero");
             }
 
-            if (vehicle is CarRegistration car)
+            switch (vehicle)
             {
-                return SendCustomerBill(toll,car);
+                case null:
+                    return Result<object>.Failure("Vehicle registration can't be null when sending a bill");
+                case CarRegistration car:
+                    return SendCustomerBill(toll, car);
+                case TaxiRegistration taxi:
+                    return SendCustomerBill(toll, taxi);
+                case BusRegistration bus:
+                    return SendCustomerBill(toll, bus);
+                case DeliveryTruckRegistration truck:
+                    return SendCustomerBill(toll, truck);
             }
-
-            if (vehicle is TaxiRegistration taxi)
-            {
-                return SendCustomerBill(toll, taxi);
-            }
-
-            if (vehicle is BusRegistration bus)
-            {
-                return SendCustomerBill(toll, bus);
-            }
-
-            if (vehicle is DeliveryTruckRegistration truck)
-            {
-                return SendCustomerBill(toll, truck);
-            }
-            return Result<object>.Failure("oops");
+            return Result<object>.Failure("Unexpected Registration type");
         }
 
         // The following methods are stubbed until the links to these systems is created
