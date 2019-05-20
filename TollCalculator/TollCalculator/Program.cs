@@ -10,7 +10,7 @@ namespace TollRunner
     {
         static void Main(string[] args)
         {
-             DisplaySomeData.DisplayTolls();
+            DisplaySomeData.DisplayTolls();
 
             TollRunner.BillTolls();
 

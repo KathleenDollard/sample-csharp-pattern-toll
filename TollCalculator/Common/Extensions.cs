@@ -17,5 +17,17 @@ namespace Common
             }
         }
 
+        public Result<T> Try<T>(Func<Result<T>> operation, Func<Result<T>> catchAction)
+        {
+            try
+            {
+                return operation();
+            }
+            catch
+            {
+                return catchAction();
+            }
+        }
+
     }
 }
