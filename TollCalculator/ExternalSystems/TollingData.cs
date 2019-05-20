@@ -9,12 +9,12 @@ namespace TollingData
         {
             TollTime = tollTime;
             InBound = inBound;
-            LicencsePlate = licensePlate;
+            LicensePlate = licensePlate;
             Passengers = passengers;
         }
         public DateTime TollTime { get; }
         public bool InBound { get; }
-        public string LicencsePlate { get; }
+        public string LicensePlate { get; }
         public int Passengers { get; }
     }
 

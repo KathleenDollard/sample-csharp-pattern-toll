@@ -23,23 +23,26 @@ namespace TollRunner
                 var tollCalculator = new TollCalculator();
                 var billingSystem = new ExternalSystem.BillingSystem();
 
+                IResult<object> vehicleResult = null;
+                IResult<object> vehicleRegistrationResult = null;
+
                 foreach (ITollEventSource tollSource in tollEventSources)
                 {
                     foreach (TollEvent tollEvent in tollSource.GetTollEvents())
                     {
-                        IResult<object> vehicleResult = null;
                         var result = DoOperation(partialFailures, tollEvent,
-                                    (lastResult) => GetVehicleRegistration(tollEvent.LicencsePlate),
-                                    (lastResult) => GetVehicle(lastResult.Data, tollEvent),
-                                    (lastResult) => (vehicleResult = lastResult),
-                                    (lastResult) => (IResult<object>)CalculateToll(lastResult.Data, tollCalculator, tollEvent),
-                                    (lastResult) => billingSystem.SendBill((decimal)lastResult.Data, vehicleResult.Data));
-
+                                    (prev) => GetVehicleRegistration(tollEvent.LicensePlate),
+                                    (prev) => (vehicleRegistrationResult = prev),  // just returns the prev result
+                                    (prev) => GetVehicle(prev.Data, tollEvent),
+                                    (prev) => (vehicleResult = prev),  // just returns the prev result
+                                    (prev) => CalculateToll(prev.Data, tollCalculator, tollEvent),
+                                    (prev) => billingSystem.SendBill((decimal)prev.Data, vehicleRegistrationResult.Data));
                     }
                 }
             }
             catch (Exception e)
             {
+                Console.WriteLine(e);
                 return Result<object>.Error(e.Message);
             }
             if (partialFailures.Count > 0)
@@ -67,7 +70,7 @@ namespace TollRunner
             return result;
         }
 
-        private static Result<decimal> CalculateToll(object vehicle,
+        private static Result<object> CalculateToll(object vehicle,
                     TollCalculator tollCalculator, TollEvent tollEvent)
         {
             try
@@ -75,11 +78,11 @@ namespace TollRunner
                 var basicToll = tollCalculator.CalculateToll(vehicle);
                 var peakPremium = tollCalculator.PeakTimePremium(tollEvent.TollTime, tollEvent.InBound);
                 var toll = basicToll * peakPremium;
-                return Result<decimal>.Success(toll);
+                return Result<object>.Success(toll);
             }
             catch (Exception e)
             {
-                return Result<decimal>.Error(e.Message);
+                return Result<object>.Error(e.Message);
             }
         }
 
@@ -88,19 +91,17 @@ namespace TollRunner
            {
                ConsumerVehicleRegistration.CarRegistration carReg
                  => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
-               LiveryRegistration.TaxiRegistration carReg
-                 => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
-               LiveryRegistration.BusRegistration carReg
-                 => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
-               CommercialRegistration.DeliveryTruckRegistration carReg
-                 => Result<object>.Success(new Car(tollEvent.Passengers, carReg)),
+               LiveryRegistration.TaxiRegistration taxiReg
+                 => Result<object>.Success(new Taxi(tollEvent.Passengers, taxiReg)),
+               LiveryRegistration.BusRegistration busReg
+                 => Result<object>.Success(new Bus(tollEvent.Passengers,busReg.Capacity, busReg)),
+               CommercialRegistration.DeliveryTruckRegistration truckReg
+                 => Result<object>.Success(new DeliveryTruck (tollEvent.Passengers, truckReg.GrossWeightClass,truckReg)),
                _ => Result<object>.Failure("Unexpected registration type")
            };
 
         private static void RecordIssue(IResult<object> result, object operatingData, string step)
-        {
-            throw new NotImplementedException();
-        }
+            => Logger.LogError($"Step: {step} - {result.Message}");
 
         private static IResult<object> GetVehicleRegistration(string licensePlate)
             => GetRegistrationFromSource(licensePlate,
