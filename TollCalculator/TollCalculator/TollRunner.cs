@@ -1,6 +1,7 @@
 ﻿using Common;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using TollEngine;
 using TollingData;
@@ -138,7 +139,7 @@ namespace TollRunner
         private static void RecordIssue(IResult<object> result, object operationData, string step)
             => Logger.Log(result.Message, Severity.Error);
 
-        private static IResult<object> GetVehicleRegistration(string licensePlate) 
+        private static IResult<object> GetVehicleRegistration(string licensePlate)
             => TryGetRegistration(licensePlate,
                 ConsumerVehicleRegistration.CarRegistration.GetByPlate,
                 CommercialRegistration.DeliveryTruckRegistration.GetByPlate,
@@ -146,18 +147,12 @@ namespace TollRunner
                 LiveryRegistration.BusRegistration.GetByPlate
                 );
 
-        private static IResult<object>  TryGetRegistration(string licensePlate,
-                params Func<string,IResult<object>>[] tryOperations)
+        private static IResult<object> TryGetRegistration(string licensePlate,
+                params Func<string, IResult<object>>[] tryOperations)
         {
-            foreach (var tryOperation in tryOperations )
-            {
-                var result = tryOperation(licensePlate);
-                if (result.ResultStatus == ResultStatus.Success)
-                {
-                    return result;
-                }
-            }
-            return Result<object>.Failure("Could not find registration");
+            IEnumerable<Func<IResult<object>>> generalizedOperations = tryOperations
+                .Select<Func<string, IResult<object>>, Func<IResult<object>>>(f => () => f(licensePlate));
+            return Extensions.TryGet(generalizedOperations.ToArray());
         }
 
     }

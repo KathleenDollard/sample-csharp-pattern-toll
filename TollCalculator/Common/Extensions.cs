@@ -29,7 +29,7 @@ namespace Common
             }
         }
 
-        public static IResult<object> TryGet(params Func<IResult<object>>[] tryOperations)
+        public static IResult<T> TryGet<T>(params Func<IResult<T>>[] tryOperations)
         {
             foreach (var tryOperation in tryOperations)
             {
@@ -39,7 +39,7 @@ namespace Common
                     return result;
                 }
             }
-            return Result<object>.Failure("Could not find item");
+            return Result<T>.Failure("Could not find item");
         }
 
     }
