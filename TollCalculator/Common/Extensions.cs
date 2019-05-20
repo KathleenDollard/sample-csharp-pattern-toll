@@ -23,10 +23,23 @@ namespace Common
             {
                 return operation();
             }
-            catch
+            catch (Exception e)
             {
-                return catchAction();
+                return Result<T>.Error(e.Message);
             }
+        }
+
+        public static IResult<object> TryGet(params Func<IResult<object>>[] tryOperations)
+        {
+            foreach (var tryOperation in tryOperations)
+            {
+                var result = tryOperation();
+                if (result.ResultStatus == ResultStatus.Success)
+                {
+                    return result;
+                }
+            }
+            return Result<object>.Failure("Could not find item");
         }
 
     }
