@@ -22,45 +22,23 @@ namespace TollRunner
             var tollCalculator = new TollCalculator();
             var billingSystem = new ExternalSystem.BillingSystem();
 
-            var result = Handler.Try<object>(() =>
+            try
             {
-
                 foreach (ITollEventSource tollSource in tollEventSources)
                 {
                     foreach (TollEvent tollEvent in tollSource.GetTollEvents())
                     {
-                        var operationName = "Retrieve registration";
-                        IResult<object> registrationResult = GetVehicleRegistration(tollEvent.LicencsePlate);
-                        if (registrationResult.ResultStatus != ResultStatus.Success)
-                        {
-                            RecordIssue(registrationResult, tollEvent, operationName);
-                            partialFailures.Add(registrationResult);
-                            return registrationResult;
-                        }
-                        Console.WriteLine($"{operationName} complete");
+                        var interimResult = DoOperation(partialFailures, "Retrieve registration", tollEvent,
+                                () => GetVehicleRegistration(tollEvent.LicencsePlate));
+                        interimResult = DoOperation(partialFailures, "Retrieve vehicle", tollEvent,
+                                () => GetVehicle(interimResult.Data, tollEvent));
+                        interimResult = Assign(interimResult.Data, registrationData);
+                        interimResult = (IResult<object>)DoOperation(partialFailures, "Calculate toll", tollEvent,
+                                () => CalculateToll(interimResult.Data,tollCalculator, tollEvent));
+                        interimResult = DoOperation(partialFailures, "Send bill", tollEvent,
+                                    () => billingSystem.SendBill((decimal)interimResult.Data, tollEvent));
 
-                        operationName = "Retrieve vehicle";
-                        IResult<object> vehicleResult = GetVehicle(registrationResult.Data, tollEvent);
-                        if (vehicleResult.ResultStatus != ResultStatus.Success)
-                        {
-                            RecordIssue(vehicleResult, tollEvent, operationName);
-                            partialFailures.Add(vehicleResult);
-                            return vehicleResult;
-                        }
-                        Console.WriteLine($"{operationName} complete");
-
-                        operationName = "Calculate toll";
-                        IResult<decimal> tollResult = CalculateToll(vehicleResult.Data, tollCalculator, tollEvent);
-                        if (tollResult.ResultStatus != ResultStatus.Success)
-                        {
-                            RecordIssue((IResult<object>)tollResult, tollEvent, operationName);
-                            partialFailures.Add((IResult<object>)tollResult);
-                            return (IResult<object>)tollResult;
-                        }
-                        Console.WriteLine($"{operationName} complete");
-
-                        operationName = "Send Bill";
-                        IResult<object> billResult = billingSystem.SendBill(tollResult.Data, registrationResult.Data);
+                        IResult<object> billResult = billingSystem.SendBill(tollResult.Data, registration;
                         if (billResult.ResultStatus != ResultStatus.Success)
                         {
                             RecordIssue(billResult, tollEvent, operationName);
@@ -71,7 +49,9 @@ namespace TollRunner
                     }
                 }
                 return Result<object>.Success(null);
-            });
+            }
+            catch
+            { }
             if (partialFailures.Count > 0)
             {
                 return Result<object>.PartialFailure(partialFailures);
@@ -80,7 +60,7 @@ namespace TollRunner
             return result;
         }
 
-        public IResult<T> DoOperation<T>(List<IResult<T>> partialFailures, string operationName,
+        public static IResult<T> DoOperation<T>(List<IResult<T>> partialFailures, string operationName,
             object operationData, Func<IResult<T>> operation)
         {
             IResult<T> result = operation();
