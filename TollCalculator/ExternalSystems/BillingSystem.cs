@@ -22,39 +22,55 @@ namespace ExternalSystem
                 return Result<object>.Failure("very oops");
             }
 
-            if (vehicle is CarRegistration car)
+            var car = vehicle as CarRegistration;
+            if (car != null)
             {
-                return SendCustomerBill(car);
+                return SendCustomerBill(toll,car);
             }
 
-            if (vehicle is TaxiRegistration taxi)
+            var taxi = vehicle as TaxiRegistration;
+            if (taxi != null)
             {
-                return SendCustomerBill(taxi);
+                return SendCustomerBill(toll, taxi);
             }
 
-            if (vehicle is BusRegistration bus)
+            var bus = vehicle as BusRegistration;
+            if (bus != null)
             {
-                return SendCustomerBill(bus);
+                return SendCustomerBill(toll, bus);
             }
 
-            if (vehicle is DeliveryTruckRegistration truck)
+            var truck = vehicle as DeliveryTruckRegistration;
+            if (truck != null)
             {
-                return SendCustomerBill(truck);
+                return SendCustomerBill(toll, truck);
             }
             return Result<object>.Failure("oops");
         }
 
         // The following methods are stubbed until the links to these systems is created
-        private Result<object> SendCustomerBill(DeliveryTruckRegistration truck)
-            => Result<object>.Success(Guid.NewGuid());
+        private IResult<object> SendCustomerBill(decimal toll, DeliveryTruckRegistration truck)
+        {
+            Logger.LogInfo($"Truck ({truck.LicensePlate}) - {toll}");
+            return Result<object>.Success(Guid.NewGuid());
+        }
 
-        private Result<object> SendCustomerBill(BusRegistration bus)
-            => Result<object>.Success(Guid.NewGuid());
+        private IResult<object> SendCustomerBill(decimal toll, BusRegistration bus)
+        {
+            Logger.LogInfo($"Bus ({bus.LicensePlate}) - {toll}");
+            return Result<object>.Success(Guid.NewGuid());
+        }
 
-        private Result<object> SendCustomerBill(TaxiRegistration taxi)
-            => Result<object>.Success(Guid.NewGuid());
+        private IResult<object> SendCustomerBill(decimal toll, TaxiRegistration taxi)
+        {
+            Logger.LogInfo($"Taxi ({taxi.LicensePlate}) - {toll}");
+            return Result<object>.Success(Guid.NewGuid());
+        }
 
-        private Result<object> SendCustomerBill(CarRegistration car)
-            => Result<object>.Success(Guid.NewGuid());
+        private IResult<object> SendCustomerBill(decimal toll, CarRegistration car)
+        {
+            Logger.LogInfo($"Car ({car.LicensePlate}) - {toll}");
+            return Result<object>.Success(Guid.NewGuid());
+        }
     }
 }
