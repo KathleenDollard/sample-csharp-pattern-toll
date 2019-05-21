@@ -19,7 +19,7 @@ namespace ConsumerVehicleRegistration
 
         public string LicensePlate { get; }
 
-        public static Result<CarRegistration> GetByPlate(string licensePlate)
+        public static IResult<CarRegistration> GetByPlate(string licensePlate)
         {
             CarRegistration car = registeredCars.Where(c => c.LicensePlate == licensePlate).SingleOrDefault();
             if (car == null)
@@ -54,7 +54,7 @@ namespace CommercialRegistration
         public int GrossWeightClass { get; }
         public string LicensePlate { get; }
 
-        public static Result<DeliveryTruckRegistration> GetByPlate(string licensePlate)
+        public static IResult<DeliveryTruckRegistration> GetByPlate(string licensePlate)
         {
             DeliveryTruckRegistration truck = registeredTrucks.Where(c => c.LicensePlate == licensePlate).SingleOrDefault();
             if (truck == null)
@@ -84,7 +84,7 @@ namespace LiveryRegistration
 
         public string LicensePlate { get; set; }
 
-        public static Result<TaxiRegistration> GetByPlate(string licensePlate)
+        public static IResult<TaxiRegistration> GetByPlate(string licensePlate)
         {
             TaxiRegistration taxi = registeredTaxis.Where(c => c.LicensePlate == licensePlate).SingleOrDefault();
             if (taxi == null)
@@ -114,7 +114,7 @@ namespace LiveryRegistration
         public int Capacity { get; }
         public string LicensePlate { get; }
 
-        public static Result<BusRegistration> GetByPlate(string licensePlate)
+        public static IResult<BusRegistration> GetByPlate(string licensePlate)
         {
             BusRegistration bus = registeredBuses.Where(c => c.LicensePlate == licensePlate).SingleOrDefault();
             if (bus == null)

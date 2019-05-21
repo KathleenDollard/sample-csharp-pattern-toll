@@ -35,7 +35,7 @@ namespace TollRunner
                             {
                                 RecordIssue(registrationResult, tollEvent, operationName);
                                 partialFailures.Add(registrationResult);
-                                return registrationResult;
+                                continue;
                             }
                             Console.WriteLine($"{operationName} complete");
 
@@ -45,7 +45,7 @@ namespace TollRunner
                             {
                                 RecordIssue(vehicleResult, tollEvent, operationName);
                                 partialFailures.Add(vehicleResult);
-                                return vehicleResult;
+                                continue;
                             }
                             Console.WriteLine($"{operationName} complete");
 
@@ -55,7 +55,7 @@ namespace TollRunner
                             {
                                 RecordIssue((IResult<object>)tollResult, tollEvent, operationName);
                                 partialFailures.Add((IResult<object>)tollResult);
-                                return (IResult<object>)tollResult;
+                                continue;
                             }
                             Console.WriteLine($"{operationName} complete");
 
@@ -65,20 +65,20 @@ namespace TollRunner
                             {
                                 RecordIssue(billResult, tollEvent, operationName);
                                 partialFailures.Add(billResult);
-                                return billResult;
+                                continue;
                             }
                             Console.WriteLine($"{operationName} complete");
                         }
                         catch
                         {
-
+                            return Result<object>.PartialFailure(partialFailures);
                         }
                     }
                 }
             }
             catch (Exception e)
             {
-                return Result<object>.Error(e.Message);
+                return Result<object>.Exception(e.Message);
             }
             if (partialFailures.Count > 0)
             {
@@ -87,7 +87,7 @@ namespace TollRunner
             return Result<object>.Success(null);
         }
 
-        private static Result<decimal> CalculateToll(object vehicle,
+        private static IResult<decimal> CalculateToll(object vehicle,
          TollCalculator tollCalculator, TollEvent tollEvent)
         {
             try

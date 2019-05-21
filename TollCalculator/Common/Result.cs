@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Common
 {
@@ -43,6 +44,9 @@ namespace Common
         public static Result<T> Error(string message)
               => new Result<T>(ResultStatus.Error, default(T), message: message);
 
+     public static Result<T> Exception(string message)
+              => new Result<T>(ResultStatus.Exception, default(T), message: message);
+
         private Result(ResultStatus resultStatus, T data,
                     IEnumerable<IResult<T>> failedResults = null,
                     string message = null)
@@ -53,6 +57,8 @@ namespace Common
         }
         public T Data { get; }
         public IEnumerable<IResult<T>> FailedResults { get; }
+
+   
     }
 
     public enum ResultStatus

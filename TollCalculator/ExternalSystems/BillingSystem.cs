@@ -10,7 +10,7 @@ namespace ExternalSystem
 
     public class BillingSystem
     {
-        public Result<object> SendBill(decimal toll, object vehicle)
+        public IResult<object> SendBill(decimal toll, object vehicle)
         {
             if (vehicle == null)
             {
@@ -49,25 +49,25 @@ namespace ExternalSystem
         }
 
         // The following methods are stubbed until the links to these systems is created
-        private Result<object> SendCustomerBill(decimal toll, DeliveryTruckRegistration truck)
+        private IResult<object> SendCustomerBill(decimal toll, DeliveryTruckRegistration truck)
         {
             Logger.LogInfo($"Truck ({truck.LicensePlate}) - {toll}");
             return Result<object>.Success(Guid.NewGuid());
         }
 
-        private Result<object> SendCustomerBill(decimal toll, BusRegistration bus)
+        private IResult<object> SendCustomerBill(decimal toll, BusRegistration bus)
         {
             Logger.LogInfo($"Bus ({bus.LicensePlate}) - {toll}");
             return Result<object>.Success(Guid.NewGuid());
         }
 
-        private Result<object> SendCustomerBill(decimal toll, TaxiRegistration taxi)
+        private IResult<object> SendCustomerBill(decimal toll, TaxiRegistration taxi)
         {
             Logger.LogInfo($"Taxi ({taxi.LicensePlate}) - {toll}");
             return Result<object>.Success(Guid.NewGuid());
         }
 
-        private Result<object> SendCustomerBill(decimal toll, CarRegistration car)
+        private IResult<object> SendCustomerBill(decimal toll, CarRegistration car)
         {
             Logger.LogInfo($"Car ({car.LicensePlate}) - {toll}");
             return Result<object>.Success(Guid.NewGuid());
