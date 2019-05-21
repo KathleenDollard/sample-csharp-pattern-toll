@@ -61,7 +61,8 @@ namespace Common
         Success,
         Failure,
         PartialFailure,
-        Error
+        Error,
+        Exception
     }
 
 }
