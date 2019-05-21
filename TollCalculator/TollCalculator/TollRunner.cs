@@ -62,7 +62,7 @@ namespace TollRunner
                 result = operation(lastResult);
                 if (result.ResultStatus != ResultStatus.Success)
                 {
-                    RecordIssue(result, operationData, "");
+                    Logger.LogError($"Step: [TODO: Add Step] - {result.Message}");
                     partialFailures.Add(result);
                     return result;
                 }
@@ -99,9 +99,6 @@ namespace TollRunner
                  => Result<object>.Success(new DeliveryTruck (tollEvent.Passengers, truckReg.GrossWeightClass,truckReg)),
                _ => Result<object>.Failure("Unexpected registration type")
            };
-
-        private static void RecordIssue(IResult<object> result, object operatingData, string step)
-            => Logger.LogError($"Step: {step} - {result.Message}");
 
         private static IResult<object> GetVehicleRegistration(string licensePlate)
             => GetRegistrationFromSource(licensePlate,
