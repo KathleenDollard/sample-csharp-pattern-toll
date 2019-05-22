@@ -16,6 +16,8 @@ namespace TollEngine
         private const int eveningRushStart = 12 + 4;  // helping folks not skilled with 24 hour clocks
         private const int eveningRushEnd = 12 + 8;
 
+        // see https://docs.microsoft.com/en-us/dotnet/csharp/tutorials/pattern-matching 
+        // for C# 8.0 Pattern Matching
         public decimal CalculateToll(object vehicle)
         {
             if (vehicle == null)

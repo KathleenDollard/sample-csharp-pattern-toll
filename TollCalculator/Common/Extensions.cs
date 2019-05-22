@@ -45,9 +45,13 @@ namespace Common
                 dataBag[operationName] = result.Data;
                 Console.WriteLine($"{operationName} complete");
             }
-            return result;
+            if (partialFailures.Count > 0)
+            {
+                Logger.LogError("Partial Failure");
+                return Result<object>.PartialFailure(partialFailures);
+            }
+            return Result<object>.Success(null);
         }
-
 
         public  static void RecordIssue(IResult<object> result, string step)
           => Logger.Log(result.Message, Severity.Error);

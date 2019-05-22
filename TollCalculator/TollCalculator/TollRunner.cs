@@ -9,44 +9,37 @@ using TollingData;
 
 namespace TollRunner
 {
-    public class TollRunner
+
+    public class Runner
+    {
+        protected static List<IResult<object>> partialFailures = new List<IResult<object>>();
+        protected static Dictionary<string, object> dataBag = new Dictionary<string, object>();
+    }
+
+    public class TollRunner : Runner
     {
         private const string RetrieveRegName = "Retrieve registration";
         private const string RetrieveVehicleName = "Retrieve vehicle";
         private const string CalculateTollName = "Calculate toll";
         private const string SendBillName = "Send Bill";
 
+        private static readonly TollCalculator tollCalculator = new TollCalculator();
+        private static readonly ExternalSystem.BillingSystem billingSystem = new ExternalSystem.BillingSystem();
+
         private static readonly ITollEventSource[] tollEventSources = new ITollEventSource[]
                             {new TollBoothA()};
 
-
         public static IResult<object> BillTolls()
-        {
-            var partialFailures = new List<IResult<object>>();
-            var dataBag = new Dictionary<string, object>();
-            var result = Handler.Try(() =>
-            {
-                var tollCalculator = new TollCalculator();
-                var billingSystem = new ExternalSystem.BillingSystem();
-                var tollEvents = tollEventSources
-                    .SelectMany(tollSource => tollSource.GetTollEvents())
-                    .Select(tollEvent => BillToll(tollEvent, dataBag, partialFailures, tollCalculator, billingSystem))
-                    .ToList();
-                return Result<object>.Success(null);
-            });
-            if (partialFailures.Count > 0)
-            {
-                Logger.LogError("Partial Failure");
-                return Result<object>.PartialFailure(partialFailures);
-            }
-            return Result<object>.Success(null);
-        }
+            => Handler.Try(() =>
+                {
+                    var tollEvents = tollEventSources
+                        .SelectMany(tollSource => tollSource.GetTollEvents())
+                        .Select(tollEvent => BillToll(tollEvent))
+                        .ToList();
+                    return Result<object>.Success(null);
+                });
 
-        private static IResult<object> BillToll(TollEvent tollEvent,
-                                                Dictionary<string, object> dataBag,
-                                                List<IResult<object>> partialFailures,
-                                                TollCalculator tollCalculator,
-                                                ExternalSystem.BillingSystem billingSystem)
+        private static IResult<object> BillToll(TollEvent tollEvent)
             => Handler.Try(()
                 => Extensions.DoOperations(partialFailures, dataBag,
                     (RetrieveRegName, (prev) => GetVehicleRegistration(tollEvent.LicencsePlate)),
@@ -87,4 +80,5 @@ namespace TollRunner
                () => LiveryRegistration.BusRegistration.GetByPlate(licencsePlate));
 
     }
+
 }
