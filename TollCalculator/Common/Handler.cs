@@ -6,7 +6,7 @@ namespace Common
 {
    public static class Handler
     {
-        public static Result<T> Try<T>(Func<Result<T>> operation)
+        public static IResult<T> Try<T>(Func<IResult<T>> operation)
         {
             try
             {

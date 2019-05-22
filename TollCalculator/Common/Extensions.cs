@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Common
 {
@@ -25,5 +26,30 @@ namespace Common
             }
             return Result<T>.Failure("Nothing found");
         }
+
+
+        public static IResult<object> DoOperations(List<IResult<object>> partialFailures,
+                Dictionary<string, object> dataBag,
+                params (string, Func<IResult<object>, IResult<object>>)[] operationTuples)
+        {
+            IResult<object> result = null;
+            foreach (var (operationName, operation) in operationTuples)
+            {
+                result = operation(result);
+                if (result.ResultStatus != ResultStatus.Success)
+                {
+                    RecordIssue(result, operationName);
+                    partialFailures.Add(result);
+                    return result;
+                }
+                dataBag[operationName] = result.Data;
+                Console.WriteLine($"{operationName} complete");
+            }
+            return result;
+        }
+
+
+        public  static void RecordIssue(IResult<object> result, string step)
+          => Logger.Log(result.Message, Severity.Error);
     }
 }
