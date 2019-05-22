@@ -24,8 +24,8 @@ namespace Common
             => Log(message, Severity.Error);
 
 
-        public static void LogException(string message)
-            => Log(message, Severity.Exception);
+        public static void LogException(Exception e)
+            => Log(e.Message, Severity.Exception);
 
 
         public static void LogVeryBigProblem(string message)
