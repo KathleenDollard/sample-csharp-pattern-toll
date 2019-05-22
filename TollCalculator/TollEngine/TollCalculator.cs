@@ -16,109 +16,48 @@ namespace TollEngine
         private const int eveningRushStart = 12 + 4;  // helping folks not skilled with 24 hour clocks
         private const int eveningRushEnd = 12 + 8;
 
-        // see https://docs.microsoft.com/en-us/dotnet/csharp/tutorials/pattern-matching 
-        // for C# 8.0 Pattern Matching
         public decimal CalculateToll(object vehicle)
-        {
-            if (vehicle == null)
-            {
-                throw new ArgumentNullException(nameof(vehicle));
-            }
+             => vehicle switch
+             {
+                 null => throw new ArgumentNullException(nameof(vehicle)),
+                 Car { Passengers: 0 } => carBase + .50m,
+                 Car { Passengers: 1 } => carBase,
+                 Car { Passengers: 2 } => carBase - .50m,
+                 Car _ => carBase - 1.00m,
 
-            if (vehicle is Car car)
-            {
-                if (car.Passengers == 0)
-                {
-                    return carBase + .50m;
-                }
-                if (car.Passengers == 1)
-                {
-                    return carBase;
-                }
-                if (car.Passengers == 2)
-                {
-                    return carBase - .50m;
-                }
-                return carBase - 1.0m;
-            }
+                 Taxi { Fares: 0 } => taxiBase + 1.00m,
+                 Taxi { Fares: 1 } => taxiBase,
+                 Taxi { Fares: 2 } => taxiBase - .50m,
+                 Taxi _ => taxiBase - 1.00m,
 
-            if (vehicle is Taxi taxi)
-            {
-                if (taxi.Fares == 0)
-                {
-                    return taxiBase + 1.00m;
-                }
-                if (taxi.Fares == 1)
-                {
-                    return taxiBase;
-                }
-                if (taxi.Fares == 2)
-                {
-                    return taxiBase - .50m;
-                }
-                return taxiBase - 1.0m;
-            }
+                 Bus b when ((double)b.Riders / (double)b.Capacity < .5) => busBase + 2.00m,
+                 Bus b when ((double)b.Riders / (double)b.Capacity > .9) => busBase - 1.00m,
+                 Bus _ => busBase,
 
-            if (vehicle is Bus bus)
-            {
-                if ((double)bus.Riders / (double)bus.Capacity < .5)
-                {
-                    return busBase + 2.00m;
-                }
-                if ((double)bus.Riders / (double)bus.Capacity > .9)
-                {
-                    return busBase - 1.00m;
-                }
-                return busBase;
-            }
+                 DeliveryTruck t when ((double)t.GrossWeightClass > 5000) => truckBase + 5.00m,
+                 DeliveryTruck t when ((double)t.GrossWeightClass < 3000) => truckBase - 2.00m,
+                 DeliveryTruck _ => truckBase,
 
-            if (vehicle is DeliveryTruck truck)
-            {
-                if ((double)truck.GrossWeightClass > 5000)
-                {
-                    return truckBase + 5.00m;
-                }
-                if ((double)truck.GrossWeightClass < 3000)
-                {
-                    return truckBase - 2.00m;
-                }
-                return truckBase;
-            }
-            throw new ArgumentException(message: "Not a known vehicle type", paramName: nameof(vehicle));
-        }
+                 _ => throw new ArgumentException(message: "Not a known vehicle type", paramName: nameof(vehicle))
+             };
 
         public decimal PeakTimePremium(DateTime timeOfToll, bool inbound)
         {
             TimeBand timeBand = GetTimeBand(timeOfToll);
-            if (Extensions.IsWeekDay(timeOfToll))
+            return (Extensions.IsWeekDay(timeOfToll), GetTimeBand(timeOfToll), inbound) switch
             {
-
-                switch (timeBand)
-                {
-                    case TimeBand.Overnight:
-                        return 0.75m;
-                    case TimeBand.Daytime:
-                        return 1.50m;
-                    case TimeBand.MorningRush:
-                        return inbound
-                                ? 2.00m
-                                : peakPremiumBase;
-                    case TimeBand.EveningRush:
-                        return !inbound
-                                ? 2.00m
-                                : peakPremiumBase;
-                        throw new ArgumentException(message: "Not a known time band", paramName: timeOfToll.ToString());
-                }
-            }
-            return timeBand == TimeBand.Overnight
-                                ? 0.75m
-                                : peakPremiumBase;
+                (true, TimeBand.Overnight, _) => 0.75m,
+                (true, TimeBand.Daytime, _) => 1.5m,
+                (true, TimeBand.MorningRush, true) => 2.0m,
+                (true, TimeBand.EveningRush, false) => 2.0m,
+                (_, _, _) => 1.0m,
+            };
         }
 
         private static TimeBand GetTimeBand(DateTime timeOfToll)
             => GetTimeBandFromHour(timeOfToll.Hour);
 
-        private static TimeBand GetTimeBandFromHour(int hour) 
+        private static TimeBand GetTimeBandFromHour(int hour)
             => hour < morningRushStart
                     ? TimeBand.Overnight
                     : hour < morningRushEnd
