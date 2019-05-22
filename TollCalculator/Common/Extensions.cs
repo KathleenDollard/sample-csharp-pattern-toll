@@ -12,5 +12,18 @@ namespace Common
                 DayOfWeek.Sunday => false,
                 _ => true,
             };
+
+        public static IResult<T> DoUntilSuccess<T>(params Func<IResult<T>>[] tryOperations)
+        {
+            foreach (var tryOperation in tryOperations)
+            {
+                var result = tryOperation();
+                if (result.ResultStatus == ResultStatus.Success)
+                {
+                    return result;
+                }
+            }
+            return Result<T>.Failure("Nothing found");
+        }
     }
 }
