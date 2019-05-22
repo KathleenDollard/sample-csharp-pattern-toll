@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using TollEngine;
 using TollingData;
+using System.Linq;
 
 namespace TollRunner
 {
@@ -22,72 +23,82 @@ namespace TollRunner
             {
                 var tollCalculator = new TollCalculator();
                 var billingSystem = new ExternalSystem.BillingSystem();
-
-                foreach (ITollEventSource tollSource in tollEventSources)
+                foreach (var tollEventSource in tollEventSources)
                 {
-                    foreach (TollEvent tollEvent in tollSource.GetTollEvents())
+                    foreach (var tollEvent in tollEventSource.GetTollEvents())
                     {
-                        try
-                        {
-                            var operationName = "Retrieve registration";
-                            IResult<object> registrationResult = GetVehicleRegistration(tollEvent.LicencsePlate);
-                            if (registrationResult.ResultStatus != ResultStatus.Success)
-                            {
-                                RecordIssue(registrationResult, tollEvent, operationName);
-                                partialFailures.Add(registrationResult);
-                                continue;
-                            }
-                            Console.WriteLine($"{operationName} complete");
-
-                            operationName = "Retrieve vehicle";
-                            IResult<object> vehicleResult = GetVehicle(registrationResult.Data, tollEvent);
-                            if (vehicleResult.ResultStatus != ResultStatus.Success)
-                            {
-                                RecordIssue(vehicleResult, tollEvent, operationName);
-                                partialFailures.Add(vehicleResult);
-                                continue;
-                            }
-                            Console.WriteLine($"{operationName} complete");
-
-                            operationName = "Calculate toll";
-                            IResult<decimal> tollResult = CalculateToll(vehicleResult.Data, tollCalculator, tollEvent);
-                            if (tollResult.ResultStatus != ResultStatus.Success)
-                            {
-                                RecordIssue((IResult<object>)tollResult, tollEvent, operationName);
-                                partialFailures.Add((IResult<object>)tollResult);
-                                continue;
-                            }
-                            Console.WriteLine($"{operationName} complete");
-
-                            operationName = "Send Bill";
-                            IResult<object> billResult = billingSystem.SendBill(tollResult.Data, registrationResult.Data);
-                            if (billResult.ResultStatus != ResultStatus.Success)
-                            {
-                                RecordIssue(billResult, tollEvent, operationName);
-                                partialFailures.Add(billResult);
-                                continue;
-                            }
-                            Console.WriteLine($"{operationName} complete");
-                        }
-                        catch
-                        {
-                            return Result<object>.PartialFailure(partialFailures);
-                        }
+                        BillToll(tollEvent, partialFailures, tollCalculator, billingSystem);
                     }
                 }
             }
             catch (Exception e)
             {
+                Logger.LogException(e);
                 return Result<object>.Exception(e.Message);
             }
             if (partialFailures.Count > 0)
             {
+                Logger.LogError("Partial Failure");
                 return Result<object>.PartialFailure(partialFailures);
             }
             return Result<object>.Success(null);
         }
 
-        private static IResult<decimal> CalculateToll(object vehicle,
+        private static IResult<object> BillToll(TollEvent tollEvent,
+                                                List<IResult<object>> partialFailures,
+                                                TollCalculator tollCalculator,
+                                                ExternalSystem.BillingSystem billingSystem)
+        {
+            try
+            {
+                var operationName = "Retrieve registration";
+                var registrationResult = GetVehicleRegistration(tollEvent.LicencsePlate);
+                if (registrationResult.ResultStatus != ResultStatus.Success)
+                {
+                    RecordIssue(registrationResult, tollEvent, operationName);
+                    partialFailures.Add(registrationResult);
+                    return registrationResult;
+                }
+                Console.WriteLine($"{operationName} complete");
+
+                operationName = "Retrieve vehicle";
+                var vehicleResult = GetVehicle(registrationResult.Data, tollEvent);
+                if (vehicleResult.ResultStatus != ResultStatus.Success)
+                {
+                    RecordIssue(vehicleResult, tollEvent, operationName);
+                    partialFailures.Add(vehicleResult);
+                    return vehicleResult;
+                }
+                Console.WriteLine($"{operationName} complete");
+
+                operationName = "Calculate toll";
+                var tollResult = CalculateToll(vehicleResult.Data, tollCalculator, tollEvent);
+                if (tollResult.ResultStatus != ResultStatus.Success)
+                {
+                    RecordIssue((IResult<object>)tollResult, tollEvent, operationName);
+                    partialFailures.Add((IResult<object>)tollResult);
+                    return tollResult;
+                }
+                Console.WriteLine($"{operationName} complete");
+
+                operationName = "Send Bill";
+                var billResult = billingSystem.SendBill((decimal)tollResult.Data, registrationResult.Data);
+                if (billResult.ResultStatus != ResultStatus.Success)
+                {
+                    RecordIssue(billResult, tollEvent, operationName);
+                    partialFailures.Add(billResult);
+                    return billResult;
+                }
+                Console.WriteLine($"{operationName} complete");
+                return billResult;
+            }
+            catch
+            {
+                return Result<object>.PartialFailure(partialFailures);
+            }
+        }
+
+        private static IResult<object> CalculateToll(object vehicle,
          TollCalculator tollCalculator, TollEvent tollEvent)
         {
             try
@@ -95,16 +106,15 @@ namespace TollRunner
                 var basicToll = tollCalculator.CalculateToll(vehicle);
                 var peakPremium = tollCalculator.PeakTimePremium(tollEvent.TollTime, tollEvent.InBound);
                 var toll = basicToll * peakPremium;
-                return Result<decimal>.Success(toll);
+                return Result<object>.Success(toll);
             }
             catch (Exception e)
             {
-                return Result<decimal>.Error(e.Message);
+                return Result<object>.Error(e.Message);
             }
         }
 
-
-        private static IResult<object> GetVehicle( object registration, TollEvent tollEvent)
+        private static IResult<object> GetVehicle(object registration, TollEvent tollEvent)
         {
             var carReg = registration as ConsumerVehicleRegistration.CarRegistration;
             if (carReg != null)
