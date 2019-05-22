@@ -20,7 +20,7 @@ namespace TollRunner
         public static IResult<object> BillTolls()
         {
             var partialFailures = new List<IResult<object>>();
-            try
+            var result = Handler.Try(() =>
             {
                 var tollCalculator = new TollCalculator();
                 var billingSystem = new ExternalSystem.BillingSystem();
@@ -28,13 +28,8 @@ namespace TollRunner
                     .SelectMany(tollSource => tollSource.GetTollEvents())
                     .Select(tollEvent => BillToll(tollEvent, partialFailures, tollCalculator, billingSystem))
                     .ToList();
-                ;
-            }
-            catch (Exception e)
-            {
-                Logger.LogException(e);
-                return Result<object>.Exception(e.Message);
-            }
+                return Result<object>.Success(null);
+            });
             if (partialFailures.Count > 0)
             {
                 Logger.LogError("Partial Failure");
@@ -43,6 +38,7 @@ namespace TollRunner
             return Result<object>.Success(null);
         }
 
+    
         private static IResult<object> BillToll(TollEvent tollEvent,
                                                 List<IResult<object>> partialFailures,
                                                 TollCalculator tollCalculator,
@@ -125,7 +121,7 @@ namespace TollRunner
                 case LiveryRegistration.BusRegistration busReg:
                     return Result<object>.Success(new Bus(tollEvent.Passengers, busReg.Capacity, busReg));
                 case CommercialRegistration.DeliveryTruckRegistration truckReg:
-                    return Result<object>.Success(new DeliveryTruck(tollEvent.Passengers, 
+                    return Result<object>.Success(new DeliveryTruck(tollEvent.Passengers,
                         truckReg.GrossWeightClass, truckReg));
             }
 
