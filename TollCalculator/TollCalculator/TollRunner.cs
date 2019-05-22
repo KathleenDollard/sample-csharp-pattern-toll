@@ -114,30 +114,19 @@ namespace TollRunner
         }
 
 
-        private static IResult<object> GetVehicle( object registration, TollEvent tollEvent)
+        private static IResult<object> GetVehicle(object registration, TollEvent tollEvent)
         {
-            var carReg = registration as ConsumerVehicleRegistration.CarRegistration;
-            if (carReg != null)
+            switch (registration)
             {
-                return Result<object>.Success(new Car(tollEvent.Passengers, carReg));
-            }
-
-            var taxiReg = registration as LiveryRegistration.TaxiRegistration;
-            if (taxiReg != null)
-            {
-                return Result<object>.Success(new Taxi(tollEvent.Passengers, taxiReg));
-            }
-
-            var busReg = registration as LiveryRegistration.BusRegistration;
-            if (busReg != null)
-            {
-                return Result<object>.Success(new Bus(tollEvent.Passengers, busReg.Capacity, busReg));
-            }
-
-            var truckReg = registration as CommercialRegistration.DeliveryTruckRegistration;
-            if (truckReg != null)
-            {
-                return Result<object>.Success(new DeliveryTruck(tollEvent.Passengers, truckReg.GrossWeightClass, truckReg));
+                case ConsumerVehicleRegistration.CarRegistration carReg:
+                    return Result<object>.Success(new Car(tollEvent.Passengers, carReg));
+                case LiveryRegistration.TaxiRegistration taxiReg:
+                    return Result<object>.Success(new Taxi(tollEvent.Passengers, taxiReg));
+                case LiveryRegistration.BusRegistration busReg:
+                    return Result<object>.Success(new Bus(tollEvent.Passengers, busReg.Capacity, busReg));
+                case CommercialRegistration.DeliveryTruckRegistration truckReg:
+                    return Result<object>.Success(new DeliveryTruck(tollEvent.Passengers, 
+                        truckReg.GrossWeightClass, truckReg));
             }
 
             return Result<object>.Failure("Unexpected registration type");

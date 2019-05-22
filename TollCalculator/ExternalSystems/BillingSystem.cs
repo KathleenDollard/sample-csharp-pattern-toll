@@ -22,26 +22,22 @@ namespace ExternalSystem
                 return Result<object>.Failure("very oops");
             }
 
-            var car = vehicle as CarRegistration;
-            if (car != null)
+            if (vehicle is CarRegistration car)
             {
-                return SendCustomerBill(toll,car);
+                return SendCustomerBill(toll, car);
             }
 
-            var taxi = vehicle as TaxiRegistration;
-            if (taxi != null)
+            if (vehicle is TaxiRegistration taxi)
             {
                 return SendCustomerBill(toll, taxi);
             }
 
-            var bus = vehicle as BusRegistration;
-            if (bus != null)
+            if (vehicle is BusRegistration bus)
             {
                 return SendCustomerBill(toll, bus);
             }
 
-            var truck = vehicle as DeliveryTruckRegistration;
-            if (truck != null)
+            if (vehicle is DeliveryTruckRegistration truck)
             {
                 return SendCustomerBill(toll, truck);
             }
