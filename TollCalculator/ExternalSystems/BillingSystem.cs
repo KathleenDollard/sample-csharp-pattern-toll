@@ -7,66 +7,59 @@ using System;
 namespace ExternalSystem
 {
 
-
-    public class BillingSystem
+    public static class BillingSystem
     {
-        public IResult<object> SendBill(decimal toll, object vehicle)
+        public static IResult<object> SendBill(this IResult<(decimal toll, object vehicle)> tollResult)
         {
-            if (vehicle == null)
+            if (tollResult is SuccessResult<(decimal toll, object vehicle)> successResult)
             {
-                return Result<object>.Failure("oops");
-            }
+                var toll = successResult.Value.toll;
+                var vehicle = successResult.Value.vehicle;
+                if (toll < 0)
+                {
+                    return Result.Fail<object>("very oops");
+                }
 
-            if (toll < 0)
-            {
-                return Result<object>.Failure("very oops");
+                switch (vehicle)
+                {
+                    case null:
+                        return Result.Fail<object>("oops");
+                    case CarRegistration car:
+                        return SendCustomerBill(toll, car);
+                    case TaxiRegistration taxi:
+                        return SendCustomerBill(toll, taxi);
+                    case BusRegistration bus:
+                        return SendCustomerBill(toll, bus);
+                    case DeliveryTruckRegistration truck:
+                        return SendCustomerBill(toll, truck);
+                }
             }
-
-            if (vehicle is CarRegistration car)
-            {
-                return SendCustomerBill(toll, car);
-            }
-
-            if (vehicle is TaxiRegistration taxi)
-            {
-                return SendCustomerBill(toll, taxi);
-            }
-
-            if (vehicle is BusRegistration bus)
-            {
-                return SendCustomerBill(toll, bus);
-            }
-
-            if (vehicle is DeliveryTruckRegistration truck)
-            {
-                return SendCustomerBill(toll, truck);
-            }
-            return Result<object>.Failure("oops");
+            return Result.Fail<object>("oops");
         }
 
         // The following methods are stubbed until the links to these systems is created
-        private IResult<object> SendCustomerBill(decimal toll, DeliveryTruckRegistration truck)
+        private static IResult<object> SendCustomerBill(decimal toll, DeliveryTruckRegistration truck)
         {
             Logger.LogInfo($"Truck ({truck.LicensePlate}) - {toll}");
-            return Result<object>.Success(Guid.NewGuid());
+            return Result.Success<object>(Guid.NewGuid());
         }
 
-        private IResult<object> SendCustomerBill(decimal toll, BusRegistration bus)
+        private static IResult<object> SendCustomerBill(decimal toll, BusRegistration bus)
         {
             Logger.LogInfo($"Bus ({bus.LicensePlate}) - {toll}");
-            return Result<object>.Success(Guid.NewGuid());
+            return Result.Success<object>(Guid.NewGuid());
         }
 
-        private IResult<object> SendCustomerBill(decimal toll, TaxiRegistration taxi)
+        private static IResult<object> SendCustomerBill(decimal toll, TaxiRegistration taxi)
         {
             Logger.LogInfo($"Taxi ({taxi.LicensePlate}) - {toll}");
-            return Result<object>.Success(Guid.NewGuid());
+            return Result.Success<object>(Guid.NewGuid());
         }
 
-        private IResult<object> SendCustomerBill(decimal toll, CarRegistration car)
+        private static IResult<object> SendCustomerBill(decimal toll, CarRegistration car)
         {
             Logger.LogInfo($"Car ({car.LicensePlate}) - {toll}");
-            return Result<object>.Success(Guid.NewGuid());
+            return Result.Success<object>(Guid.NewGuid());
         }
     }
 }

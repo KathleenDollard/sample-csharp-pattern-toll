@@ -9,17 +9,11 @@ namespace TollCalculatorTest
 {
     public class PeakPremiumTests
     {
-        private TollCalculator _tollCalculator;
-
-        [SetUp]
-        public void Setup()
-            => _tollCalculator = new TollCalculator();
-
         [Test]
         [TestCaseSource(typeof(TestDataProvider))]
         public decimal Peak_premium_correct(DateTime tollEventTime, bool inBound)
         {
-            var toll = _tollCalculator.PeakTimePremium(tollEventTime, inBound);
+            var toll = TollCalculator.PeakTimePremium(tollEventTime, inBound);
             Console.WriteLine(tollEventTime);
             return toll;
         }

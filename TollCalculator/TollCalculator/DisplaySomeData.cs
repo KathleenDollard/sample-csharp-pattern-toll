@@ -10,8 +10,6 @@ namespace TollRunner
     { 
         internal static void DisplayTolls()
         {
-            var tollCalc = new TollCalculator();
-
             var carRegistration = new CarRegistration("Test");
             var soloDriver = new Car(0,carRegistration);
             var twoRideShare = new Car(1,carRegistration);
@@ -36,27 +34,27 @@ namespace TollRunner
             var truck = new DeliveryTruck(0, truckReg.GrossWeightClass, truckReg);
             var lightTruck = new DeliveryTruck(0, lightTruckReg.GrossWeightClass, lightTruckReg);
 
-            Console.WriteLine($"The toll for a solo driver is {tollCalc.CalculateToll(soloDriver)}");
-            Console.WriteLine($"The toll for a two ride share is {tollCalc.CalculateToll(twoRideShare)}");
-            Console.WriteLine($"The toll for a three ride share is {tollCalc.CalculateToll(threeRideShare)}");
-            Console.WriteLine($"The toll for a fullVan is {tollCalc.CalculateToll(fullVan)}");
+            Console.WriteLine($"The toll for a solo driver is {TollCalculator.CalculateToll(soloDriver)}");
+            Console.WriteLine($"The toll for a two ride share is {TollCalculator.CalculateToll(twoRideShare)}");
+            Console.WriteLine($"The toll for a three ride share is {TollCalculator.CalculateToll(threeRideShare)}");
+            Console.WriteLine($"The toll for a fullVan is {TollCalculator.CalculateToll(fullVan)}");
 
-            Console.WriteLine($"The toll for an empty taxi is {tollCalc.CalculateToll(emptyTaxi)}");
-            Console.WriteLine($"The toll for a single fare taxi is {tollCalc.CalculateToll(singleFare)}");
-            Console.WriteLine($"The toll for a double fare taxi is {tollCalc.CalculateToll(doubleFare)}");
-            Console.WriteLine($"The toll for a full van taxi is {tollCalc.CalculateToll(fullVanPool)}");
+            Console.WriteLine($"The toll for an empty taxi is {TollCalculator.CalculateToll(emptyTaxi)}");
+            Console.WriteLine($"The toll for a single fare taxi is {TollCalculator.CalculateToll(singleFare)}");
+            Console.WriteLine($"The toll for a double fare taxi is {TollCalculator.CalculateToll(doubleFare)}");
+            Console.WriteLine($"The toll for a full van taxi is {TollCalculator.CalculateToll(fullVanPool)}");
 
-            Console.WriteLine($"The toll for a low-occupant bus is {tollCalc.CalculateToll(lowOccupantBus)}");
-            Console.WriteLine($"The toll for a regular bus is {tollCalc.CalculateToll(normalBus)}");
-            Console.WriteLine($"The toll for a bus is {tollCalc.CalculateToll(fullBus)}");
+            Console.WriteLine($"The toll for a low-occupant bus is {TollCalculator.CalculateToll(lowOccupantBus)}");
+            Console.WriteLine($"The toll for a regular bus is {TollCalculator.CalculateToll(normalBus)}");
+            Console.WriteLine($"The toll for a bus is {TollCalculator.CalculateToll(fullBus)}");
 
-            Console.WriteLine($"The toll for a heavy truck is {tollCalc.CalculateToll(heavyTruck)}");
-            Console.WriteLine($"The toll for a truck is {tollCalc.CalculateToll(truck)}");
-            Console.WriteLine($"The toll for a light truck is {tollCalc.CalculateToll(lightTruck)}");
+            Console.WriteLine($"The toll for a heavy truck is {TollCalculator.CalculateToll(heavyTruck)}");
+            Console.WriteLine($"The toll for a truck is {TollCalculator.CalculateToll(truck)}");
+            Console.WriteLine($"The toll for a light truck is {TollCalculator.CalculateToll(lightTruck)}");
 
             try
             {
-                tollCalc.CalculateToll("this will fail");
+                TollCalculator.CalculateToll("this will fail");
             }
             catch (ArgumentException )
             {
@@ -64,7 +62,7 @@ namespace TollRunner
             }
             try
             {
-                tollCalc.CalculateToll(null);
+                TollCalculator.CalculateToll(null);
             }
             catch (ArgumentNullException )
             {
@@ -88,8 +86,8 @@ namespace TollRunner
             Console.WriteLine("====================================================");
             foreach (DateTime time in testTimes)
             {
-                Console.WriteLine($"Inbound premium at {time} is {tollCalc.PeakTimePremium(time, true)}");
-                Console.WriteLine($"Outbound premium at {time} is {tollCalc.PeakTimePremium(time, false)}");
+                Console.WriteLine($"Inbound premium at {time} is {TollCalculator.PeakTimePremium(time, true)}");
+                Console.WriteLine($"Outbound premium at {time} is {TollCalculator.PeakTimePremium(time, false)}");
             }
         }
     }

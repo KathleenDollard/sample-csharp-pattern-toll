@@ -6,7 +6,7 @@ namespace Common
 {
    public static class Handler
     {
-        public static IResult<T> Try<T>(Func<IResult<T>> operation)
+        public static Result<T> Try<T>(Func<Result<T>> operation)
         {
             try
             {
@@ -15,7 +15,7 @@ namespace Common
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return Result<T>.Exception(e.Message);
+                return Result.Fail<T>(e.Message);
             }
         }
     }

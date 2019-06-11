@@ -8,17 +8,12 @@ namespace Tests
 {
     public class TollCalculatorTests
     {
-        private TollCalculator _tollCalculator;
-        [SetUp]
-        public void Setup() 
-            => _tollCalculator = new TollCalculator();
-
         [Test]
         public void Car_with_no_passengers_correct()
         {
             var carRegistration = new CarRegistration("Test");
             var car = new Car(0, carRegistration);
-            var toll = _tollCalculator.CalculateToll(car);
+            var toll = TollCalculator.CalculateToll(car);
             Assert.AreEqual(2.50m, toll);
         }
 
@@ -27,7 +22,7 @@ namespace Tests
         {
             var carRegistration = new CarRegistration("Test");
             var car = new Car(1, carRegistration);
-            var toll = _tollCalculator.CalculateToll(car);
+            var toll = TollCalculator.CalculateToll(car);
             Assert.AreEqual(2.00m, toll);
         }
 
@@ -36,7 +31,7 @@ namespace Tests
         {
             var carRegistration = new CarRegistration("Test");
             var car = new Car(2, carRegistration);
-            var toll = _tollCalculator.CalculateToll(car);
+            var toll = TollCalculator.CalculateToll(car);
             Assert.AreEqual(1.50m, toll);
         }
 
@@ -45,7 +40,7 @@ namespace Tests
         {
             var carRegistration = new CarRegistration("Test");
             var car = new Car(5, carRegistration);
-            var toll = _tollCalculator.CalculateToll(car);
+            var toll = TollCalculator.CalculateToll(car);
             Assert.AreEqual(1.00m, toll);
         }
 
@@ -54,7 +49,7 @@ namespace Tests
         {
             var carRegistration = new CarRegistration("Test");
             var car = new Car(10, carRegistration);
-            var toll = _tollCalculator.CalculateToll(car);
+            var toll = TollCalculator.CalculateToll(car);
             Assert.AreEqual(1.0m, toll);
         }
 
@@ -63,7 +58,7 @@ namespace Tests
         {
             var taxiRegistration = new TaxiRegistration("Test");
             var taxi = new Taxi(0, taxiRegistration);
-            var toll = _tollCalculator.CalculateToll(taxi);
+            var toll = TollCalculator.CalculateToll(taxi);
             Assert.AreEqual(4.50m, toll);
         }
 
@@ -72,7 +67,7 @@ namespace Tests
         {
             var taxiRegistration = new TaxiRegistration("Test");
             var taxi = new Taxi(1, taxiRegistration);
-            var toll = _tollCalculator.CalculateToll(taxi);
+            var toll = TollCalculator.CalculateToll(taxi);
             Assert.AreEqual(3.50m, toll);
         }
 
@@ -81,7 +76,7 @@ namespace Tests
         {
             var taxiRegistration = new TaxiRegistration("Test");
             var taxi = new Taxi(2, taxiRegistration);
-            var toll = _tollCalculator.CalculateToll(taxi);
+            var toll = TollCalculator.CalculateToll(taxi);
             Assert.AreEqual(3.00m, toll);
         }
 
@@ -90,7 +85,7 @@ namespace Tests
         {
             var taxiRegistration = new TaxiRegistration("Test");
             var taxi = new Taxi(5, taxiRegistration);
-            var toll = _tollCalculator.CalculateToll(taxi);
+            var toll = TollCalculator.CalculateToll(taxi);
             Assert.AreEqual(2.50m, toll);
         }
 
@@ -99,7 +94,7 @@ namespace Tests
         {
             var taxiRegistration = new TaxiRegistration("Test");
             var taxi = new Taxi(10, taxiRegistration);
-            var toll = _tollCalculator.CalculateToll(taxi);
+            var toll = TollCalculator.CalculateToll(taxi);
             Assert.AreEqual(2.50m, toll);
         }
 
@@ -108,7 +103,7 @@ namespace Tests
         {
             var busRegistration = new BusRegistration("Test", 90);
             var bus = new Bus(15, busRegistration.Capacity,busRegistration);
-            var toll = _tollCalculator.CalculateToll(bus);
+            var toll = TollCalculator.CalculateToll(bus);
             Assert.AreEqual(7.00m, toll);
         }
 
@@ -117,7 +112,7 @@ namespace Tests
         {
             var busRegistration = new BusRegistration("Test", 90);
             var bus = new Bus(75, busRegistration.Capacity, busRegistration);
-            var toll = _tollCalculator.CalculateToll(bus);
+            var toll = TollCalculator.CalculateToll(bus);
             Assert.AreEqual(5.00m, toll);
         }
 
@@ -126,7 +121,7 @@ namespace Tests
         {
             var busRegistration = new BusRegistration("Test", 90);
             var bus = new Bus(85, busRegistration.Capacity, busRegistration);
-            var toll = _tollCalculator.CalculateToll(bus);
+            var toll = TollCalculator.CalculateToll(bus);
             Assert.AreEqual(4.00m, toll);
         }
 
@@ -135,7 +130,7 @@ namespace Tests
         {
             var lightTruckReg = new DeliveryTruckRegistration("Test", 2500);
             var truck = new DeliveryTruck(0, lightTruckReg.GrossWeightClass , lightTruckReg);
-            var toll = _tollCalculator.CalculateToll(truck);
+            var toll = TollCalculator.CalculateToll(truck);
             Assert.AreEqual(8.00m, toll);
         }
 
@@ -145,7 +140,7 @@ namespace Tests
         {
             var truckReg = new DeliveryTruckRegistration("Test", 4000);
             var truck = new DeliveryTruck(0, truckReg.GrossWeightClass, truckReg);
-            var toll = _tollCalculator.CalculateToll(truck);
+            var toll = TollCalculator.CalculateToll(truck);
             Assert.AreEqual(10.00m, toll);
         }
 
@@ -155,7 +150,7 @@ namespace Tests
         {
             var heavyTruckReg = new DeliveryTruckRegistration("Test", 7500);
             var truck = new DeliveryTruck(0, heavyTruckReg.GrossWeightClass, heavyTruckReg); ;
-            var toll = _tollCalculator.CalculateToll(truck);
+            var toll = TollCalculator.CalculateToll(truck);
             Assert.AreEqual(15.00m, toll);
         }
 

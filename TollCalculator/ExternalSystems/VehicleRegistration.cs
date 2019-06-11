@@ -21,7 +21,7 @@ namespace ConsumerVehicleRegistration
             CarRegistration car = registeredCars.Where(c => c.LicensePlate == licensePlate).SingleOrDefault();
             if (car == null)
             {
-                return Result<CarRegistration>.Failure("Could not find license plate");
+                return Result.Fail<CarRegistration>("Could not find license plate");
             }
             return Result<CarRegistration>.Success(car);
         }
@@ -56,7 +56,7 @@ namespace CommercialRegistration
             DeliveryTruckRegistration truck = registeredTrucks.Where(c => c.LicensePlate == licensePlate).SingleOrDefault();
             if (truck == null)
             {
-                return Result<DeliveryTruckRegistration>.Failure("Could not find license plate");
+                return Result.Fail<DeliveryTruckRegistration>("Could not find license plate");
             }
             return Result<DeliveryTruckRegistration>.Success(truck);
         }
@@ -83,7 +83,7 @@ namespace LiveryRegistration
             TaxiRegistration taxi = registeredTaxis.Where(c => c.LicensePlate == licensePlate).SingleOrDefault();
             if (taxi == null)
             {
-                return Result<TaxiRegistration>.Failure("Could not find license plate");
+                return Result.Fail<TaxiRegistration>("Could not find license plate");
             }
             return Result<TaxiRegistration>.Success(taxi);
         }
@@ -113,7 +113,7 @@ namespace LiveryRegistration
             BusRegistration bus = registeredBuses.Where(c => c.LicensePlate == licensePlate).SingleOrDefault();
             if (bus == null)
             {
-                return Result<BusRegistration>.Failure("Could not find license plate");
+                return Result.Fail<BusRegistration>("Could not find license plate");
             }
             return Result<BusRegistration>.Success(bus);
         }

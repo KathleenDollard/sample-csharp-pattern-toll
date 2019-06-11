@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Common
 {
-    public class Extensions
+    public static class Extensions
     {
         // Not an extension to avoid confusion with example
         public static bool IsWeekDay(DateTime timeOfToll)
@@ -14,46 +15,44 @@ namespace Common
                 _ => true,
             };
 
-        public static IResult<T> DoUntilSuccess<T>(params Func<IResult<T>>[] tryOperations)
+        public static IResult<T> Start<T>(this T startValue)
+            => Result.Success<T>(startValue);
+
+        public static IResult<T> IfNotFailed<TIn, T>(this IResult<TIn> currentResult,
+                Func<SuccessResult<TIn>, IResult<T>> operation) 
+            => currentResult is SuccessResult<TIn> successResult 
+                ? operation(successResult) 
+                : Result.Fail<T>(currentResult);
+
+
+        private static readonly Dictionary<object, (string Name, object FuncAsObject)> cache
+            = new Dictionary<object, (string Name, object FuncAsObject)>();
+        public static (string name, Func<TParam, TReturn> operation) GetNameAndFunc<TParam, TReturn>(
+            this Expression<Func<TParam, TReturn>> operationExpression)
         {
-            foreach (var tryOperation in tryOperations)
+            if (cache.TryGetValue(operationExpression, out (string Name, object FuncAsObject) tuple))
             {
-                var result = tryOperation();
-                if (result.ResultStatus == ResultStatus.Success)
-                {
-                    return result;
-                }
+                // The following needs work because it currently returns null without warning. 
+                return (tuple.Name, tuple.FuncAsObject as Func<TParam, TReturn>);
             }
-            return Result<T>.Failure("Nothing found");
+
+            Func<TParam, TReturn> func = operationExpression.Compile();
+            Expression body = operationExpression.Body;
+            var name = "Unknown operation";
+            switch (body)
+            {
+                case MethodCallExpression methodCallExpression:
+                    name = methodCallExpression.Method.Name;
+                    break;
+
+            }
+            cache[operationExpression] = (name, func);
+            return (name, func);
         }
 
-
-        public static IResult<object> DoOperations(List<IResult<object>> partialFailures,
-                Dictionary<string, object> dataBag,
-                params (string, Func<IResult<object>, IResult<object>>)[] operationTuples)
-        {
-            IResult<object> result = null;
-            foreach (var (operationName, operation) in operationTuples)
-            {
-                result = operation(result);
-                if (result.ResultStatus != ResultStatus.Success)
-                {
-                    RecordIssue(result, operationName);
-                    partialFailures.Add(result);
-                    return result;
-                }
-                dataBag[operationName] = result.Data;
-                Console.WriteLine($"{operationName} complete");
-            }
-            if (partialFailures.Count > 0)
-            {
-                Logger.LogError("Partial Failure");
-                return Result<object>.PartialFailure(partialFailures);
-            }
-            return Result<object>.Success(null);
-        }
-
-        public  static void RecordIssue(IResult<object> result, string step)
-          => Logger.Log(result.Message, Severity.Error);
+        private static void RecordComplete(string operationName) 
+            => Logger.LogInfo($"{operationName} complete");
+        public static void RecordIssue<T>(Result<T> result, string step)
+            => Logger.Log(result.Message, Severity.Error);
     }
 }
